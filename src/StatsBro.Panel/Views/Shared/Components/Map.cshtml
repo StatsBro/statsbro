@@ -1,0 +1,21 @@
+﻿<!-- Map -->
+@{
+    var mapId = "map" + Guid.NewGuid();
+}
+<div id="@mapId" style="height: 350px"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        var map = L.map('@mapId').setView([52.237049, 21.017532], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        L.marker([52.409538, 16.931992]).addTo(map);
+        L.marker([51.107883, 17.038538]).addTo(map);
+        
+    });
+</script>
+<!-- Map -->

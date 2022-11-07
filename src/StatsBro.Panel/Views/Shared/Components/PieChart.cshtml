@@ -1,0 +1,27 @@
+﻿@model PieChartViewModel
+<!-- Chart -->
+@{
+    var chartId = "chart" + Guid.NewGuid();
+}
+<div id="@chartId"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        new ApexCharts(document.querySelector("#@chartId"), {
+            series: @Html.Raw(Model.SeriesToJSString()),
+            chart: {
+                height: 350,
+                type: 'donut',
+                fontFamily: 'Nunito, sans-serif',
+                toolbar: {
+                    show: true
+                },
+            },
+            fill: {
+                type: 'gradient',
+            },
+            labels: @Html.Raw(Model.LabelsToJSString())
+        }).render();
+    });
+</script>
+<!-- End Chart -->

@@ -1,0 +1,9 @@
+﻿@model FormModel
+
+@if (Model?.Errors != null)
+{
+    @foreach (var er in Model?.Errors)
+    {
+        <div class="alert alert-danger" role="alert">@er</div>
+    }
+}

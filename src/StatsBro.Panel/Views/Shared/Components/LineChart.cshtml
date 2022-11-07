@@ -1,0 +1,57 @@
+﻿@model LineChartViewModel
+<!-- Chart -->
+@{
+    var chartId = "chart" + Guid.NewGuid();
+}
+<div id="@chartId"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        new ApexCharts(document.querySelector("#@chartId"), {
+            series: [
+                @foreach(var series in Model.Series)
+                {
+                    @Html.Raw(series.ValsToJSString())
+                }
+            ],
+            chart: {
+                height: 350,
+                type: 'area',
+                fontFamily: 'Nunito, sans-serif',
+                toolbar: {
+                    show: true
+                },
+            },
+            markers: {
+                size: 4
+            },
+            colors: ['#4154f1', '#2eca6a'],
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.3,
+                    opacityTo: 0.4,
+                    stops: [0, 90, 100]
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            xaxis: {
+                type: 'datetime',
+                categories: @Html.Raw(Model.TimePointsToJSString())
+            },
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                },
+            }
+        }).render();
+    });
+</script>
+<!-- End Chart -->

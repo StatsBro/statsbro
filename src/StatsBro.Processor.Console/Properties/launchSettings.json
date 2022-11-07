@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "StatsBro.Processor.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

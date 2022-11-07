@@ -1,0 +1,36 @@
+﻿@model UserEditFormModel
+@{
+    Layout = "_Layout";
+}
+<div class="pagetitle">
+    <h1>Ustawienia użytkownika</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a asp-controller="Home" asp-action="Profile">Profil</a></li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+<div class="card col-12 col-md-6">
+    <div class="card-body">
+        <h5 class="card-title">Ustawienia użytkownika @Model.Email</h5>
+        <form class="row g-3" method="post" asp-action="Profile">
+            @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+
+            <div class="col-12">
+                <label for="yourEmail" class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" id="yourEmail" value="@Model?.Email" required>
+            </div>
+
+            <div class="col-12">
+                <label for="yourPassword" class="form-label">Hasło (pozostaw pole puste jeśli nie chcesz zmieniać)</label>
+                <input type="password" name="password" class="form-control" id="yourPassword">
+            </div>
+
+            <div class="col-12">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-primary" type="submit">Zapisz</button>
+            </div>
+
+        </form>
+    </div>
+</div>

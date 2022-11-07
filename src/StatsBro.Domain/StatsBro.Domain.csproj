@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.0.0-rc.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="6.0.9" />
+		<PackageReference Include="NEST" Version="7.17.5" />
+	</ItemGroup>
+
+</Project>
