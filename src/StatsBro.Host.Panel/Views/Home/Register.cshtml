@@ -1,0 +1,64 @@
+﻿@model RegisterFormModel
+@{
+    Layout = "_PublicLayout";
+}
+
+<section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+                <div class="d-flex justify-content-center py-4">
+                    <a href="index.html" class="logo d-flex align-items-center w-auto">
+                        <img src="assets/img/logo.png" alt="">
+                    </a>
+                </div><!-- End Logo -->
+
+                <div class="card mb-3">
+
+                    <div class="card-body">
+
+                        <div class="pt-4 pb-2">
+                            <h5 class="card-title text-center pb-0 fs-4">Utwórz konto</h5>
+                        </div>
+                        <p class="text-primary"><i class="bi bi-speedometer2"></i> Szybka konfiguracja. Tylko 2 kroki.</p>
+                        <form class="row g-3" method="post" asp-action="Register">
+                            @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+                            <div class="col-12">
+                                <label for="yourEmail" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" id="yourEmail" value="@Model?.Email" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="yourPassword" class="form-label">Hasło</label>
+                                <input type="password" name="password" class="form-control" id="yourPassword" required>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="yourDomain" class="form-label">Adres strony</label>
+                                <p class="small text-secondary">Adres strony do zainstalowania statystyk, np. https://mojastrona.com</p>
+                                <input type="url" name="siteUrl" class="form-control" id="yourDomain" value="@Model?.SiteUrl" required>
+                            </div>
+
+                            <input type="hidden" asp-for="TrapHidden" />
+                            <input type="text" asp-for="TrapNotVisible" style="display:none" />
+                            
+                            <input type="hidden" name="createdAt" id="createdAt" value="@(Model?.CreatedAt ?? DateTime.UtcNow.ToFileTimeUtc())">
+
+                            <div class="col-12">
+                                <button class="btn btn-primary w-100" type="submit">Utwórz konto</button>
+                            </div>
+
+                            <div class="col-12">
+                                <p class="small">Klikając przycisk Załóż konto wyrażasz zgodę na <a href="#">regulamin</a></p>
+                                <p class="small mb-0">Masz już konto? <a href="/login">Zaloguj się</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</section>

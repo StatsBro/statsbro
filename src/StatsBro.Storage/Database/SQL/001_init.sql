@@ -33,11 +33,11 @@ CREATE TABLE UserSites (
 
 
 INSERT INTO Sites
-	VALUES('BB75DE1C-CCCC-2222-92B7-0DAD4963D922', 'statsbro.io', 'ref;source;utm_campaign;utm_medium;utm_source;utm_content;utm_term', NULL, datetime('now','utc'), datetime('now','utc'))
+	VALUES('BB75DE1C-CCCC-2222-92B7-0DAD4963D922', 'statsbro.io', 'ref,source,utm_campaign,utm_medium,utm_source,utm_content,utm_term', NULL, datetime('now','utc'), datetime('now','utc'))
 ;
 
 INSERT INTO Sites
-	VALUES('2275DE1C-CCCC-2222-92B7-0DAD49612988', 'localhost', 'ref;source;utm_campaign;utm_medium;utm_source;utm_content;utm_term', '', datetime('now','utc'), datetime('now','utc'))
+	VALUES('2275DE1C-CCCC-2222-92B7-0DAD49612988', 'localhost', 'ref,source,utm_campaign,utm_medium,utm_source,utm_content,utm_term', '', datetime('now','utc'), datetime('now','utc'))
 ;
 
 INSERT INTO Users
@@ -54,4 +54,7 @@ INSERT INTO UserSites
 ;
 INSERT INTO UserSites
 	VALUES('1A75DE1C-AAAA-BBBB-92B7-0DAD4963D111', 'FA75DE1C-1234-BBB5-92B7-0DAD4963D9F6', '2275DE1C-CCCC-2222-92B7-0DAD49612988', datetime('now','utc'), datetime('now','utc'))
+;
+
+CREATE UNIQUE INDEX IDX_UQ_Sites_domain ON Sites(domain)
 ;

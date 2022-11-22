@@ -1,0 +1,45 @@
+﻿@model Site
+@{
+    Layout = "_Layout";
+}
+<div class="pagetitle">
+    <h1>Skrypt dla @Model.Domain</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Site" asp-action="Index">Strony</a></li>
+            <li class="breadcrumb-item active">Skrypt dla @Model.Domain</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Instalacja skryptu dla strony @Model.Domain</h5>
+        @if (Model.IsScriptLive)
+        {
+            <p>Skrypt działa prawidłowo i zbiera dane.</p>
+        }
+        else
+        {
+            <p>
+                Umieść proszę poniższy skrypt pomiędzy tagami &#x3C;head&#x3E; i &#x3C;/head&#x3E; we wszystkich częściach Twojej strony internetowej @Model.Domain
+            </p>
+
+            <div class="alert alert-secondary" role="alert">
+                <code>
+                    &#x3C;script defer src=&#x22;https://data.statsbro.io/js/script.js&#x22;&#x3E;&#x3C;/script&#x3E;
+                </code>
+            </div>
+
+            <p>
+                Po umieszczeniu kodu wejdź na stronę i odwiedź kilka jej podstron. Jeśli wszystko poszło dobrze to ten ekran zniknie automatycznie.
+            </p>
+
+            <div class="alert alert-info" role="alert">
+                Uwaga! StatsBro automatycznie ignoruje ruch ze środowisk testowych i deweloperskich. Upewnij się, że ruch będzie pochodził dokładnie z domeny o nazwie: @Model.Domain
+                (a nie np. subdomeny)
+            </div>
+            <script type="text/javascript"> setTimeout (function () { location.reload (true); }, 10000); </script>
+        }
+    </div>
+</div>

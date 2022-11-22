@@ -1,3 +1,17 @@
+/* Copyright StatsBro.io and/or licensed to StatsBro.io under one
+ * or more contributor license agreements.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Server Side Public License, version 1
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Server Side Public License for more details.
+
+ * You should have received a copy of the Server Side Public License
+ * along with this program. If not, see
+ * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
+ */
 ﻿namespace StatsBro.Storage.Database;
 
 using Microsoft.Data.Sqlite;
@@ -7,6 +21,7 @@ using StatsBro.Domain.Models.DTO;
 using StatsBro.Domain.Models.Exceptions;
 using System.Collections.Generic;
 using System.Data;
+using StatsBro.Domain.Helpers;
 
 public interface IDbRepository
 {
@@ -14,6 +29,7 @@ public interface IDbRepository
     Task<Guid> SaveSiteAsync(Site site);
     Task<IList<Site>> GetSitesForUserAsync(Guid userId);
     Task<Site> GetSiteAsync(Guid siteId);
+    Task<Site?> GetSiteAsync(string domain);
     Task<User?> GetUserAsync(string email);
     Task<User?> GetUserAsync(Guid id);
     Task<Guid> CreateUserAsync(User newUser);
@@ -126,6 +142,27 @@ public class DbRepository : IDbRepository
         }
     }
 
+    public async Task<Site?> GetSiteAsync(string domain)
+    {
+        try
+        {
+            using var c = this.Connection;
+            var siteDTOs = await c.QueryAsync<SiteDTO>(
+               @"SELECT DISTINCT s.id, s.domain,s.persistQueryParams, s.ignoreIPs, s.createdAt, s.updatedAt
+                    FROM Sites s
+                    WHERE 
+                        s.domain = @domain
+                    COLLATE NOCASE;",
+               new { domain });
+
+            return this.MapSites(siteDTOs).SingleOrDefault();
+        }
+        catch (InvalidOperationException exc) when (exc.Message == "Sequence contains no elements")
+        {
+            return null;
+        }
+    }
+
     public async Task<Guid> SaveSiteAsync(Site site)
     {
         using var c = this.Connection;
@@ -140,8 +177,8 @@ public class DbRepository : IDbRepository
         {
             id = id,
             domain = site.Domain,
-            persistQueryParams = string.Join(";", site.PersistQueryParamsList),
-            ignoreIPs = string.Join(";", site.IgnoreIPsList),
+            persistQueryParams = string.Join(Consts.SiteSettingsQueryParamsSeparator, site.PersistQueryParamsList),
+            ignoreIPs = string.Join(Consts.SiteSettingsIPsSeparator, site.IgnoreIPsList),
         });
 
         return id;
@@ -153,8 +190,7 @@ public class DbRepository : IDbRepository
         var id = NewId();
         await c.ExecuteAsync(
             @"INSERT INTO UserSites(id, userId, siteId)
-                VALUES(@id, @userId, @siteId)
-                COLLATE NOCASE;",
+                VALUES(@id, @userId, @siteId);",
             new { id = id, userId = userId, siteId = siteId });
 
         return id;
@@ -167,7 +203,7 @@ public class DbRepository : IDbRepository
         await c.ExecuteAsync(
             @"INSERT INTO Users(id, email, passwordHash, passwordSalt)
                     VALUES(@id, @email, @passwordHash, @passwordSalt)
-                COLLATE NOCASE;",
+               ;",
             new { id = id, email = newUser.Email, passwordHash = newUser.PasswordHash, passwordSalt = newUser.PasswordSalt });
 
         return id;
@@ -204,9 +240,9 @@ public class DbRepository : IDbRepository
             Id = Guid.Parse(s.Id),
             Domain = s.Domain,
             IgnoreIPsList = s.IgnoreIPs == null ?
-                new List<System.Net.IPAddress>() : s.IgnoreIPs.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(ip => System.Net.IPAddress.Parse(ip)).ToList(),
+                new List<System.Net.IPAddress>() : s.IgnoreIPs.Split(Consts.SiteSettingsIPsSeparator, StringSplitOptions.RemoveEmptyEntries).Select(ip => System.Net.IPAddress.Parse(ip)).ToList(),
             PersistQueryParamsList = s.PersistQueryParams == null ?
-                new List<string>() : s.PersistQueryParams.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList()
+                new List<string>() : s.PersistQueryParams.Split(Consts.SiteSettingsQueryParamsSeparator, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToList()
         });
     }
     

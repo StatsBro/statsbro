@@ -1,3 +1,17 @@
+/* Copyright StatsBro.io and/or licensed to StatsBro.io under one
+ * or more contributor license agreements.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Server Side Public License, version 1
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Server Side Public License for more details.
+
+ * You should have received a copy of the Server Side Public License
+ * along with this program. If not, see
+ * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
+ */
 ﻿namespace StatsBro.DataGeneratorApp;
 
 using StatsBro.Domain.Models;
@@ -71,8 +85,8 @@ internal class StaticDataGenerator
             {
                 EventName = "pageview",
                 Lang = "en",
-                Referrer = bogusInternet.Url(),
-                Url = "https://domain/index.html?utma=12356345&ref=wp.pl&utm_term=googleshop",
+                Referrer = "https://kopalniawiedzy.pl/rak-jelita-grubego-instrukcja-chemioterapia,35740",
+                Url = "https://domain/index.html?utma=12356345&ref=wp.pl&utm_term=googleshop&utm_campaign=adstest1",
                 UserAgent = userAgents[0],
                 WindowHeight = 1024,
                 WindowWidth = 1200,
@@ -85,6 +99,7 @@ internal class StaticDataGenerator
             {
                 EventName = "pageview",
                 Lang = "en",
+                Referrer = "https://allegro.pl/oferta/kuchenna-deska-bambus-do-krojenia-serwowania-4-szt-11485462177?bi_s=ads&bi_m=showitem:active&bi_c=MjhmZTZhMzYtOGQzNi00M2RlLTk2YTYtZjIwODYwNmE0ZTVmAA&bi_t=ape&referrer=proxy&emission_unit_id=10459c7b-c286-4875-9779-a4c4304b339b",
                 Url = "https://domain/index.html",
                 UserAgent = userAgents[2],
                 WindowHeight = 1024,
@@ -93,31 +108,31 @@ internal class StaticDataGenerator
                 ScriptVersion = 1
             });
 
-        this.predefinedPayloads.Add(
-            new EventPayloadContent
-            {
-                EventName = "pageview",
-                Lang = "pl",
-                Url = "https://domain/index.html",
-                UserAgent = userAgents[3],
-                WindowHeight = 1024,
-                WindowWidth = 1500,
-                TouchPoints = 0,
-                ScriptVersion = 1
-            });
+        //this.predefinedPayloads.Add(
+        //    new EventPayloadContent
+        //    {
+        //        EventName = "pageview",
+        //        Lang = "pl",
+        //        Url = "https://domain/index.html#main_index",
+        //        UserAgent = userAgents[3],
+        //        WindowHeight = 1024,
+        //        WindowWidth = 1500,
+        //        TouchPoints = 0,
+        //        ScriptVersion = 1
+        //    });
 
-        this.predefinedPayloads.Add(
-            new EventPayloadContent
-            {
-                EventName = "pageview",
-                Lang = "en",
-                Referrer = bogusInternet.Url(),
-                Url = "https://domain/basket.html?ref=me.com",
-                UserAgent = userAgents[7],
-                WindowHeight = 1024,
-                WindowWidth = 1440,
-                TouchPoints = 0,
-                ScriptVersion = 1
-            });
+        //this.predefinedPayloads.Add(
+        //    new EventPayloadContent
+        //    {
+        //        EventName = "pageview",
+        //        Lang = "en",
+        //        Referrer = bogusInternet.Url(),
+        //        Url = "https://domain/basket.html?ref=me.com#buyme",
+        //        UserAgent = userAgents[7],
+        //        WindowHeight = 1024,
+        //        WindowWidth = 1440,
+        //        TouchPoints = 0,
+        //        ScriptVersion = 1
+        //    });
     }
 }
