@@ -1,0 +1,49 @@
+﻿@model SharingSettingsFormModel
+
+@await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+
+<form class="row g-3" method="post" asp-action="SettingsSharing">
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" asp-for="LinkSharingEnabled">
+            <label class="form-check-label" for="flexSwitchCheckDefault">Udostępnianie za pomocą unikalnego linku</label>
+        </div>
+    </div>
+
+    @if (Model.LinkSharingEnabled)
+    {
+        <div class="col-1"></div>
+        <div class="col-9">
+            <input type="text" class="form-control" id="sharingLinkUrl" value="@Model.LinkSharingUrl" />
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary" onclick="copyToClipboard('sharingLinkUrl')">Kopiuj</button>
+        </div>
+    }
+
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" asp-for="ApiKeyEnabled">
+            <label class="form-check-label" for="flexSwitchCheckDefault">Dostęp do API</label>
+        </div>
+    </div>
+
+    @if (Model.ApiKeyEnabled)
+    {
+        <div class="col-1"></div>
+        <div class="col-9">
+            <input type="text" class="form-control" id="apiKeyValue" value="@Model.ApiKeyValue" />
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary" onclick="copyToClipboard('apiKeyValue');">
+                Kopiuj
+            </button>
+        </div>
+    }
+
+    <div class="col-12">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-primary" type="submit">Zapisz</button>
+    </div>
+
+</form>

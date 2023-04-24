@@ -2,104 +2,188 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>StatsBro.io - konsola</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+    <title>StatsBro.io - konsola</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
 
-  <!-- Favicons -->
-  <link href="~/assets/img/favicon.ico" rel="icon" asp-append-version="true">
-  
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.ico" rel="icon" asp-append-version="true">
+
     <!-- Vendor CSS Files -->
-  <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" asp-append-version="true">
-  <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" asp-append-version="true">
-  <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" asp-append-version="true">
-  <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet" asp-append-version="true">
-  <link href="~/assets/vendor/leaflet/leaflet.css" rel="stylesheet" asp-append-version="true">
- 
-  <!-- Template Main CSS File -->
-  <link href="~/assets/css/style.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/leaflet/leaflet.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/assets/vendor/simple-datatables/style.css" rel="stylesheet" asp-append-version="true">
+
+    <!-- Template Main CSS File -->
+    <link href="~/assets/css/style.css" rel="stylesheet" asp-append-version="true">
 
 </head>
 
 <body>
 
-  <!-- ======= Header ======= -->
-  <header id="header" class="header fixed-top d-flex align-items-center">
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
 
-    <div class="d-flex align-items-center justify-content-between">
-      <a href="#" class="logo d-flex align-items-center">
-        <img src="~/assets/img/logo.png" alt="">
-      </a>
-      <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="#" class="logo d-flex align-items-center">
+                <img src="~/assets/img/logo.png" alt="">
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
 
 
-  </header><!-- End Header -->
+    </header><!-- End Header -->
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
 
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Site" asp-action="Index">
+                    <i class="bi bi-grid"></i>
+                    <span>Strony</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" asp-controller="Site" asp-action="Index">
-          <i class="bi bi-grid"></i>
-          <span>Strony</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Home" asp-action="Profile">
+                    <i class="bi bi-person"></i>
+                    <span>Profil</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" asp-controller="Home" asp-action="Profile">
-          <i class="bi bi-person"></i>
-          <span>Profil</span>
-        </a>
-      </li><!-- End Profile Page Nav -->
+            @if (User.IsInRole(StatsBro.Domain.Models.DTO.OrganizationUserRole.Admin.ToString()))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="Home" asp-action="UsersManagement">
+                        <i class="bi bi-people"></i>
+                        <span>Użytkownicy</span>
+                    </a>
+                </li><!-- End Profile Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" asp-controller="Home" asp-action="Help">
-          <i class="bi bi-question-circle"></i>
-          <span>Pomoc</span>
-        </a>
-      </li><!-- End F.A.Q Page Nav -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="Payment" asp-action="Index">
+                        <i class="bi bi-bank"></i>
+                        <span>Płatności</span>
+                    </a>
+                </li><!-- End Profile Page Nav -->
+            }
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" asp-controller="Home" asp-action="Logout">
-          <i class="bi bi-box-arrow-in-right"></i>
-          <span>Wyloguj</span>
-        </a>
-      </li><!-- End Login Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Home" asp-action="Help">
+                    <i class="bi bi-question-circle"></i>
+                    <span>Pomoc</span>
+                </a>
+            </li><!-- End F.A.Q Page Nav -->
 
-    </ul>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Home" asp-action="Logout">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Wyloguj</span>
+                </a>
+            </li><!-- End Login Page Nav -->
 
-  </aside><!-- End Sidebar-->
+        </ul>
 
-  <main id="main" class="main">
+    </aside><!-- End Sidebar-->
 
-    @RenderBody()
+    <main id="main" class="main">
 
-  </main><!-- End #main -->
+        @RenderBody()
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
-    <div class="copyright">
-      &copy; Copyright <strong><span>StatsBro.io</span></strong>. All Rights Reserved
-    </div>
-  </footer><!-- End Footer -->
+    </main><!-- End #main -->
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; Copyright <strong><span>StatsBro.io</span></strong>. All Rights Reserved
+        </div>
+    </footer><!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-  <!-- Vendor JS Files -->
-  <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-  <script src="~/assets/vendor/apexcharts/apexcharts.min.js" asp-append-version="true"></script>
-  <script src="~/assets/vendor/leaflet/leaflet.js" asp-append-version="true"></script>
-  <script src="~/assets/vendor/darkmode/darkmode-js.min.js" asp-append-version="true"></script>
-  
-  <!-- Template Main JS File -->
-  <script src="~/assets/js/main.js" asp-append-version="true"></script>
-  @await RenderSectionAsync("Scripts", required: false)
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/leaflet/leaflet.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/darkmode/darkmode-js.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/simple-datatables/simple-datatables.js" asp-append-version="true"></script>
+
+    <script>
+        Apex.chart = {
+            locales: [
+                {
+                    "name": "pl",
+                    "options": {
+                        "months": [
+                            "Styczeń",
+                            "Luty",
+                            "Marzec",
+                            "Kwiecień",
+                            "Maj",
+                            "Czerwiec",
+                            "Lipiec",
+                            "Sierpień",
+                            "Wrzesień",
+                            "Październik",
+                            "Listopad",
+                            "Grudzień"
+                        ],
+                        "shortMonths": [
+                            "Sty",
+                            "Lut",
+                            "Mar",
+                            "Kwi",
+                            "Maj",
+                            "Cze",
+                            "Lip",
+                            "Sie",
+                            "Wrz",
+                            "Paź",
+                            "Lis",
+                            "Gru"
+                        ],
+                        "days": [
+                            "Niedziela",
+                            "Poniedziałek",
+                            "Wtorek",
+                            "Środa",
+                            "Czwartek",
+                            "Piątek",
+                            "Sobota"
+                        ],
+                        "shortDays": ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
+                        "toolbar": {
+                            "exportToSVG": "Pobierz SVG",
+                            "exportToPNG": "Pobierz PNG",
+                            "exportToCSV": "Pobierz CSV",
+                            "menu": "Menu",
+                            "selection": "Zaznacz",
+                            "selectionZoom": "Przybliż zaznaczenie",
+                            "zoomIn": "Przybliż",
+                            "zoomOut": "Oddal",
+                            "pan": "Przesuń",
+                            "reset": "Resetuj"
+                        }
+                    }
+                }
+            ],
+            defaultLocale: "pl"
+        };
+    </script>
+
+    <!-- Template Main JS File -->
+    <script src="~/assets/js/main.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <!-- Start of txt.me widget code -->
+<script src="https://v3.txt.me/livechat/js/wrapper/99b9cf77-aa51-447a-b8f0-e2060640f083" async></script>
+<noscript><a href="https://txt.me/reviews/99b9cf77-aa51-447a-b8f0-e2060640f083" rel="nofollow">Rate New Widget customer support</a>, powered by <a href="https://txt.me" rel="noopener nofollow" target="_blank">txt.me</a></noscript>
+<!-- End of txt.me widget code -->
 </body>
 
 </html>

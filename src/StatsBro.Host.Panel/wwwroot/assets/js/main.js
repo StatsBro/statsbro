@@ -104,6 +104,25 @@
     onscroll(document, toggleBacktotop)
   }
 
+    /**
+ * Initiate Datatables
+ */
+    const datatables = select('.datatable', true)
+    datatables.forEach(datatable => {
+        new simpleDatatables.DataTable(datatable, {
+            labels: {
+                placeholder: "Szukaj...",
+                perPage: "{select} wierszy na stronę",
+                noRows: "Brak danych",
+                info: "Wyniki {start} do {end} z {rows}",
+            },
+            layout: {
+                top: "{info}{search}",
+                bottom: "{pager}{select}"
+            },
+        });
+    })
+
   /**
    * Initiate tooltips
    */
@@ -128,3 +147,12 @@
     }
 
 })();
+
+function copyToClipboard(id) {
+    var c = document.getElementById(id);
+    c.select();
+    c.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(c.value);
+    alert('Skopiowane!');
+}

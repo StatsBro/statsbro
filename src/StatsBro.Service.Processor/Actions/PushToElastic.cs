@@ -71,7 +71,7 @@ public class PushToElastic : IPushToElastic
         //{
         //    this._logger.LogWarning($"Failed builkInsert to ES: {bulkResponse.Warnings}");
         //}
-        await Task.Delay(10);
+        //await Task.Delay(10);
         if (contentItems.Length > 0)
         {
             List<Task<Nest.BulkResponse>> bulkResponseTasks = new();

@@ -1,0 +1,9 @@
+﻿@model StatsViewModel
+@{
+    Layout = "_PublicLayout";
+}
+<div class="pagetitle mt-5">
+    <h1>Statystyki @Model.Site.Domain</h1>
+    
+</div><!-- End Page Title -->
+@await Html.PartialAsync("/Views/Shared/Components/StatsDashboard.cshtml", Model)

@@ -76,6 +76,7 @@ public class EsRepository : IEsRepository
             s.Index(Indexing.IndexName(this._esConfig, domain))
             .Size(10000)
             .Query(q => q.DateRange(drq => drq.Field("@timestamp").GreaterThan(DateMath.Anchored(from.UtcDateTime)).LessThan(DateMath.Anchored(to.UtcDateTime))))
+            .Sort(s => s.Descending("@timestamp"))
         );
 
         return result.Hits.Select(h => h.Source);

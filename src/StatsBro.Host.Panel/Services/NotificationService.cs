@@ -28,19 +28,24 @@ public interface INotificationService
 public class NotificationService : INotificationService
 {
     private readonly RabbitMQConfig _config;
-    
-    public NotificationService(IOptions<RabbitMQConfig> options)
+    private readonly ILogger<NotificationService> _logger;
+
+    public NotificationService(IOptions<RabbitMQConfig> options, ILogger<NotificationService> logger)
     {
         this._config = options.Value;
+        this._logger = logger;
     }
 
     public Task NotifySiteConfigChangedAsync(Guid siteId)
     {
         return Task.Run(() => {
             var body = Queues.BuildMessageBody(new EventSiteConfigChanged() { SiteId = siteId.ToString() });
-            var (channel, connection) = this.BuildChannel();
+            IModel? channel = null;
+            IConnection? connection = null;
+            
             try
             {
+                (channel, connection) = this.BuildChannel();
                 var properties = channel.CreateBasicProperties();
 
                 channel.BasicPublish(
@@ -49,9 +54,13 @@ public class NotificationService : INotificationService
                     body: body,
                     basicProperties: properties);
             }
+            catch (Exception exc)
+            {
+                _logger.LogError("Problem notifying about config change, error: {msg}", exc.ToString());
+            }
             finally
             {
-                channel.Close();
+                channel?.Close();
                 connection?.Close();
             }
         });

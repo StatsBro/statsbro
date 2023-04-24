@@ -62,7 +62,7 @@ public class MessagingService : IMessagingService
 
     private async Task<bool> SlackPushAsync(string url, string text)
     {
-        var client = _httpClientFactory.CreateClient();
+        using var client = _httpClientFactory.CreateClient();
         var result = await client.PostAsJsonAsync(url, new { text });
         if (!result.IsSuccessStatusCode)
         {

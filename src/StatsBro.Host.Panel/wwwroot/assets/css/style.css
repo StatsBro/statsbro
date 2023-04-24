@@ -61,6 +61,7 @@ h6 {
 --------------------------------------------------------------*/
 .pagetitle {
   margin-bottom: 10px;
+  position: relative;
 }
 
 .pagetitle h1 {
@@ -781,30 +782,30 @@ h6 {
 # Dashboard
 --------------------------------------------------------------*/
 /* Filter dropdown */
-.dashboard .filter {
+.filter {
   position: absolute;
   right: 0px;
   top: 15px;
 }
 
-.dashboard .filter .icon {
-  color: #aab7cf;
+.filter .icon {
+  color: #012970;
   padding-right: 20px;
   padding-bottom: 5px;
   transition: 0.3s;
   font-size: 16px;
 }
 
-.dashboard .filter .icon:hover,
-.dashboard .filter .icon:focus {
+.filter .icon:hover,
+.filter .icon:focus {
   color: #4154f1;
 }
 
-.dashboard .filter .dropdown-header {
+.filter .dropdown-header {
   padding: 8px 15px;
 }
 
-.dashboard .filter .dropdown-header h6 {
+.filter .dropdown-header h6 {
   text-transform: uppercase;
   font-size: 14px;
   font-weight: 600;
@@ -814,7 +815,7 @@ h6 {
   padding: 0;
 }
 
-.dashboard .filter .dropdown-item {
+.filter .dropdown-item {
   padding: 8px 15px;
 }
 
@@ -865,7 +866,7 @@ h6 {
   position: relative;
   flex-shrink: 0;
   flex-grow: 0;
-  min-width: 64px;
+  min-width: 150px;
 }
 
 .dashboard .activity .activity-item .activite-label::before {
@@ -1264,6 +1265,10 @@ h6 {
 }
 
 .fs-0-75 {
+    font-size: 0.75rem;
+}
+
+.dataTable-wrapper {
     font-size: 0.75rem;
 }
 

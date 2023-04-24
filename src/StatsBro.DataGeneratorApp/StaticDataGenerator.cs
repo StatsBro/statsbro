@@ -43,8 +43,8 @@ internal class StaticDataGenerator
     {
         var domain = "statsbro.io";
 
-        Parallel.For(0, 10, x => {
-            for (int i = 0; i < 4000; i++)
+        Parallel.For(0, 1, x => {
+            for (int i = 0; i < 1; i++)
             {
                 var (payload, ip) = GetPayload(i, domain);
                 var jsonContent = JsonSerializer.Serialize(payload);
@@ -80,46 +80,47 @@ internal class StaticDataGenerator
 
     private void BuildPredefinedPayloads()
     {
-        this.predefinedPayloads.Add(
-            new EventPayloadContent
-            {
-                EventName = "pageview",
-                Lang = "en",
-                Referrer = "https://kopalniawiedzy.pl/rak-jelita-grubego-instrukcja-chemioterapia,35740",
-                Url = "https://domain/index.html?utma=12356345&ref=wp.pl&utm_term=googleshop&utm_campaign=adstest1",
-                UserAgent = userAgents[0],
-                WindowHeight = 1024,
-                WindowWidth = 1200,
-                TouchPoints = 0,
-                ScriptVersion = 1
-            });
-
-        this.predefinedPayloads.Add(
-            new EventPayloadContent
-            {
-                EventName = "pageview",
-                Lang = "en",
-                Referrer = "https://allegro.pl/oferta/kuchenna-deska-bambus-do-krojenia-serwowania-4-szt-11485462177?bi_s=ads&bi_m=showitem:active&bi_c=MjhmZTZhMzYtOGQzNi00M2RlLTk2YTYtZjIwODYwNmE0ZTVmAA&bi_t=ape&referrer=proxy&emission_unit_id=10459c7b-c286-4875-9779-a4c4304b339b",
-                Url = "https://domain/index.html",
-                UserAgent = userAgents[2],
-                WindowHeight = 1024,
-                WindowWidth = 460,
-                TouchPoints = 2,
-                ScriptVersion = 1
-            });
+        //this.predefinedPayloads.Add(
+        //    new EventPayloadContent
+        //    {
+        //        EventName = "pageview",
+        //        Lang = "en",
+        //        Referrer = "https://zdzisiek.pl?utma=12356345&ref=wp.pl&utm_term=googleshop&utm_campaign=adstest1",
+        //        Url = "https://domain/index.html?utma=12356345&ref=wp.pl&utm_term=googleshop&utm_campaign=adstest1",
+        //        UserAgent = userAgents[0],
+        //        WindowHeight = 1024,
+        //        WindowWidth = 1200,
+        //        TouchPoints = 0,
+        //        ScriptVersion = 1
+        //    });
 
         //this.predefinedPayloads.Add(
         //    new EventPayloadContent
         //    {
         //        EventName = "pageview",
-        //        Lang = "pl",
-        //        Url = "https://domain/index.html#main_index",
-        //        UserAgent = userAgents[3],
+        //        Lang = "en",
+        //        //Referrer = "costam",
+        //        Url = "https://domain/index.html",
+        //        UserAgent = userAgents[2],
         //        WindowHeight = 1024,
-        //        WindowWidth = 1500,
-        //        TouchPoints = 0,
+        //        WindowWidth = 460,
+        //        TouchPoints = 2,
         //        ScriptVersion = 1
         //    });
+
+        this.predefinedPayloads.Add(
+            new EventPayloadContent
+            {
+                EventName = "pageview",
+                Lang = "pl",
+                Referrer = "",
+                Url = "https://domain/index.html#main_index",
+                UserAgent = userAgents[3],
+                WindowHeight = 1024,
+                WindowWidth = 1500,
+                TouchPoints = 0,
+                ScriptVersion = 1
+            });
 
         //this.predefinedPayloads.Add(
         //    new EventPayloadContent

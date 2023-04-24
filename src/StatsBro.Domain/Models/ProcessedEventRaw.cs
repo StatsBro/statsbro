@@ -13,8 +13,6 @@
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StatsBro.Domain.Models
 {
@@ -67,7 +65,13 @@ namespace StatsBro.Domain.Models
         public int ScriptVersion { get; set; }
 
         [Nest.PropertyName("user_agent")]
-        public UserAgentData UserAgent { get; set; }
+        public UserAgentData UserAgent { get; set; } = null!;
+
+        [Nest.PropertyName("geo")]
+        public GeoData Geo { get; set; } = null!;
+
+        //[Nest.PropertyName("time_spent")]
+        //public long? TimeSpentMillis { get; set; } // in milliseconds
     }
 
     public class UrlData
@@ -88,5 +92,14 @@ namespace StatsBro.Domain.Models
     {
         public NameVersionData Os { get; set; } = null!;
         public NameVersionData Device { get; set; } = null!;
+    }
+
+    public class GeoData
+    {
+        [Nest.PropertyName("country_name")]
+        public string CountryName { get; set; } = null!;
+
+        [Nest.PropertyName("city_name")]
+        public string CityName { get; set; } = null!;
     }
 }

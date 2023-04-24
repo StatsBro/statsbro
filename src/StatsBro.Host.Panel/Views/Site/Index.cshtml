@@ -11,6 +11,15 @@
     </nav>
 </div><!-- End Page Title -->
 
+@if (User.IsInRole(StatsBro.Domain.Models.DTO.OrganizationUserRole.Admin.ToString()) && ViewBag.CanAddMoreDomains)
+{
+    <div class="row mb-3">
+        <div class="col">
+            <a asp-controller="Site" asp-action="New" class="btn btn-primary"><i class="bi bi-plus-square"></i> Dodaj stronę</a>
+        </div>
+    </div>    
+}
+
 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-2">
     @foreach (var site in Model)
     {
@@ -28,8 +37,14 @@
                     }
                     <ul class="list-unstyled mt-3">
                         <li class="lead"><a asp-controller="Stats" asp-action="View" asp-route-siteId="@site.Id"><i class="bi bi-bar-chart-line-fill"></i> Statystyki</a></li>
+                        <li><a asp-controller="Stats" asp-action="Live" asp-route-siteId="@site.Id"><i class="bi bi-broadcast"></i> Podgląd na żywo</a></li>
+                        
+                    @if (User.IsInRole(StatsBro.Domain.Models.DTO.OrganizationUserRole.Admin.ToString()))
+                    {
                         <li><a asp-controller="Site" asp-action="Settings" asp-route-siteId="@site.Id"><i class="bi bi-gear"></i> Ustawienia strony</a></li>
                         <li><a asp-controller="Site" asp-action="DataExport" asp-route-siteId="@site.Id"><i class="bi bi-cloud-download"></i> Eksport danych</a></li>
+                    }
+                        
                         <li><a asp-controller="Site" asp-action="Script" asp-route-siteId="@site.Id"><i class="bi bi-code-square"></i> Instalacja skryptu</a></li>
                     </ul>
                 </div>

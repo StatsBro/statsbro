@@ -1,0 +1,52 @@
+﻿@model LiveViewModel
+@{
+    Layout = "_Layout";
+}
+<div class="pagetitle">
+    <h1>Podgląd na żywo @Model.Site.Domain</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Site" asp-action="Index">Strony</a></li>
+            <li class="breadcrumb-item active">Podgląd na żywo @Model.Site.Domain</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<section id="liveReloadSection" class="dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ładowanie ...</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        setInterval(function() {
+            var xhr = new XMLHttpRequest();
+            var url = "@Model.UpdateUrl";
+            var selector = '#liveReloadSection';
+
+            xhr.onreadystatechange = function xhrStateChange() {
+                if (xhr.readyState === 4) {
+                    var section;
+                    try {
+                        section = xhr.responseXML.querySelector(selector);
+                        var destination = document.querySelector(selector);
+                        destination.replaceWith(section);
+                    } catch (e) {
+                        console.log("Error updating" + e);
+                    }
+                }
+            };
+            
+            xhr.open('GET', url);
+            xhr.responseType = 'document';
+            xhr.send();
+        }, 1000);
+    </script>
+}

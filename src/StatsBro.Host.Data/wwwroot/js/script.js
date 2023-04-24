@@ -15,6 +15,5 @@
 	
 	t();
 
-	window.addEventListener('popstate', t);
-	window.addEventListener('hashchange', t);
+	window.addEventListener('popstate', (e) => { t(); });
 }();

@@ -12,22 +12,19 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿using System.ComponentModel.DataAnnotations;
+using StatsBro.Host.Panel.Models.Forms.Settings;
 
 namespace StatsBro.Host.Panel.Models.Forms
 {
-    public class SiteSettingsFormModel : FormModel
+    public class SiteSettingsFormModel
     {
-        public Guid Id { get; set; }
+        public GeneralSettingsFormModel General { get; set; }
+        public SharingSettingsFormModel Sharing { get; set; }
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj adres twojej strony")]
-        [DataType(DataType.Url, ErrorMessage = "Adres twojej strony ma nieprawidłowy format")]
-        public string SiteUrl { get; set; } = null!;
-
-        public string? Domain { get; set; }
-
-        public string? PersistQueryParamsList { get; set; }
-        public string? IgnoreIPsList { get; set; }
-
+        public SiteSettingsFormModel()
+        {
+            General = new GeneralSettingsFormModel();
+            Sharing = new SharingSettingsFormModel();
+        }
     }
 }

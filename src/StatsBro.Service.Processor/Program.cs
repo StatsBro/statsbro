@@ -46,6 +46,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddTransient<IEventPayloadDeserializer, DeserializeQueueMessage>();
         services.AddTransient<IEventPyloadFilter, FilterEventPayload>();
         services.AddTransient<IContentProcessor, ContentProcessor>();
+        services.AddTransient<IReferrerTimeSpentUpdate, ReferrerTimeSpentUpdate>();
+        services.AddTransient<IHashCalculatorFactory, HashCalculatorFactory>();
 
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddSingleton<ISitesConfigurations, SitesConfigurations>();

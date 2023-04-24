@@ -12,12 +12,12 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-namespace StatsBro.Host.Panel.Models
-{
-    public class ErrorViewModel
-    {
-        public string? RequestId { get; set; }
+namespace StatsBro.Host.Panel.Models;
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-    }
+public class ErrorViewModel
+{
+    public string? RequestId { get; set; }
+
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    public int? StatusCode { get; set; } = 0;
 }

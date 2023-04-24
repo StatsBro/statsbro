@@ -1,0 +1,29 @@
+﻿@model GeneralSettingsFormModel
+
+@await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+
+<form class="row g-3" method="post" asp-action="SettingsGeneral">
+            <div class="col-12">
+                <label for="yourDomain" class="form-label">Adres strony</label>
+                <p class="small text-secondary">Adres strony do zainstalowania statystyk, np. https://mojastrona.com</p>
+                <input type="url" name="siteUrl" class="form-control" id="yourDomain" value="@Model.SiteUrl" required>
+            </div>
+
+            <div class="col-12">
+                <label for="saveParams" class="form-label">Zachowaj parametry</label>
+                <p class="small text-secondary">Podaj po przecinku parametry (query string), które mają zostać zachowane</p>
+                <textarea  name="PersistQueryParamsList" class="form-control" id="saveParams">@Model.PersistQueryParamsList</textarea>
+            </div>
+
+            <div class="col-12">
+                <label for="igrnoeIPs" class="form-label">Ignoruj adresy IP</label>
+                <p class="small text-secondary">Podaj po przecinku adresy IP, z których dane mamy ignorować</p>
+                <textarea  name="IgnoreIPsList" class="form-control" id="igrnoeIPs">@Model.IgnoreIPsList</textarea>
+            </div>
+
+            <div class="col-12">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <button class="btn btn-primary" type="submit">Zapisz</button>
+            </div>
+
+        </form>

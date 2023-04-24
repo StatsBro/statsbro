@@ -54,6 +54,7 @@ namespace StatsBro.DataGeneratorApp
                     requestMessage.Headers.Add("X-Forwarded-For", ip);
 
                     var response = client.SendAsync(requestMessage).Result;
+                    Thread.Sleep(1000);
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -95,6 +96,20 @@ namespace StatsBro.DataGeneratorApp
                 new EventPayloadContent
                 {
                     EventName = "pageview",
+                    Lang = "en",
+                    Referrer = "https://domain/index.html",
+                    Url = "https://domain/about.html",
+                    UserAgent = userAgents[0],
+                    WindowHeight = 1024,
+                    WindowWidth = 1200,
+                    TouchPoints = 0,
+                    ScriptVersion = 1
+                });
+
+            this.predefinedPayloads.Add(
+                new EventPayloadContent
+                {
+                    EventName = "contact_button_click",
                     Lang = "en",
                     Referrer = "https://domain/index.html",
                     Url = "https://domain/about.html",

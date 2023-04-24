@@ -1,5 +1,11 @@
 ﻿@model TableViewModel
-<table class="table table-striped fs-0-75">
+
+@{
+    var request = (StatsRequest)ViewBag.Request;
+    var linkBuilder = (StatsRequestLinkBuilder)ViewBag.LinkBuilder;
+}
+
+<table class="table datatable table-striped fs-0-75">
     <thead>
         <tr>
             @foreach(DataColumn col in Model.Data.Columns)
@@ -16,7 +22,7 @@
                 {
                     if (i == 0)
                     {
-                        <td><a href="@Model.GetLinkWithSubquery(row[i].ToString())">@row[i]</a></td>   
+                        <td><a href="@linkBuilder.FilterBy(Model.FilterType, row[i].ToString()).GetUrl()">@row[i]</a></td>   
                     }
                     else
                     {

@@ -17,7 +17,7 @@
         <h5 class="card-title">Instalacja skryptu dla strony @Model.Domain</h5>
         @if (Model.IsScriptLive)
         {
-            <p>Skrypt działa prawidłowo i zbiera dane.</p>
+            <p>Skrypt działa prawidłowo i zbiera dane. <a asp-controller="Stats" asp-action="View" asp-route-siteId="@Model.Id">Zobacz statystyki</a></p>
         }
         else
         {
@@ -35,11 +35,18 @@
                 Po umieszczeniu kodu wejdź na stronę i odwiedź kilka jej podstron. Jeśli wszystko poszło dobrze to ten ekran zniknie automatycznie.
             </p>
 
+            <div class="alert alert-secondary" role="alert">
+                <h4 class="alert-heading"><img src="~/assets/img/wp_logo.png" height="50" /> Instalacja na Wordpress</h4>
+
+                <p>Skorzystaj z <a href="~/assets/plugins/statsbro_wp_plugin.zip">darmowego pluginu</a> by zainstalować StatsBro na swojej instancji WP</p>
+            </div>
+
             <div class="alert alert-info" role="alert">
                 Uwaga! StatsBro automatycznie ignoruje ruch ze środowisk testowych i deweloperskich. Upewnij się, że ruch będzie pochodził dokładnie z domeny o nazwie: @Model.Domain
                 (a nie np. subdomeny)
             </div>
-            <script type="text/javascript"> setTimeout (function () { location.reload (true); }, 10000); </script>
+
+            <script type="text/javascript">setTimeout(function () { location.reload(true); }, 10000);</script>
         }
     </div>
 </div>

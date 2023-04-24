@@ -44,7 +44,12 @@
             },
             xaxis: {
                 type: 'datetime',
-                categories: @Html.Raw(Model.TimePointsToJSString())
+                categories: @Html.Raw(Model.TimePointsToJSString()),
+                labels: {
+                    formatter: function (value, timestamp) {
+                      return new Date(timestamp).toLocaleString() // The formatter function overrides format property
+                    }, 
+                }
             },
             tooltip: {
                 x: {

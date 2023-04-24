@@ -13,11 +13,14 @@
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
 ﻿using System.Data;
+using static StatsBro.Host.Panel.Extensions.StatsRequestLinkBuilder;
 
 namespace StatsBro.Host.Panel.Models
 {
-    public class TableViewModel : WithQueryViewModel
+    public class TableViewModel
     {
         public DataTable Data { get; set; } = null!;
+
+        public StatsRequestFitlerType FilterType { get; set; }
     }
 }

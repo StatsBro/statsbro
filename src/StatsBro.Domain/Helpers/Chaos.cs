@@ -1,4 +1,4 @@
-/* Copyright StatsBro.io and/or licensed to StatsBro.io under one
+/* Copyr    ight StatsBro.io and/or licensed to StatsBro.io under one
  * or more contributor license agreements.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the Server Side Public License, version 1
@@ -15,6 +15,7 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace StatsBro.Domain.Helpers
 {
@@ -41,6 +42,29 @@ namespace StatsBro.Domain.Helpers
             byte[] randomBytes = new byte[size];
             rngCryptoServiceProvider.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
+        }
+
+        internal static readonly char[] chars =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+
+        public static string GetUniqueAlphanumericString(int size = 128)
+        {
+            byte[] data = new byte[4 * size];
+            using (var crypto = RandomNumberGenerator.Create())
+            {
+                crypto.GetBytes(data);
+            }
+            
+            var result = new StringBuilder(size);
+            for (int i = 0; i < size; i++)
+            {
+                var rnd = BitConverter.ToUInt32(data, i * 4);
+                var idx = rnd % chars.Length;
+
+                result.Append(chars[idx]);
+            }
+
+            return result.ToString();
         }
     }
 }

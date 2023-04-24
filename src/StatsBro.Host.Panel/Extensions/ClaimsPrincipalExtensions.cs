@@ -27,9 +27,41 @@ public static class ClaimsPrincipalExtensions
         var claimSid = principal.FindFirst(ClaimTypes.Sid);
         if (claimSid == null)
         {
-            throw new EntityNotFoundException("User data not found");
+            throw new EntityNotFoundException("User data not found.");
         }
 
         return Guid.Parse(claimSid.Value);
+    }
+
+    public static Guid GetOrganizationId(this ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            throw new ArgumentNullException(nameof(principal));
+        }
+
+        var groupSid = principal.FindFirst(ClaimTypes.GroupSid);
+        if (groupSid == null)
+        {
+            throw new EntityNotFoundException("Organization data not found.");
+        }
+
+        return Guid.Parse(groupSid.Value);
+    }
+
+    public static Guid GetSiteId(this ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            throw new ArgumentNullException(nameof(principal));
+        }
+
+        var siteclaimNameIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier);
+        if (siteclaimNameIdentifier == null)
+        {
+            throw new EntityNotFoundException("Site data not found.");
+        }
+
+        return Guid.Parse(siteclaimNameIdentifier.Value);
     }
 }

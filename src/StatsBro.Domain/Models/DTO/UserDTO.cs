@@ -27,5 +27,7 @@ namespace StatsBro.Domain.Models.DTO
         public string PasswordSalt { get; set; } = null!;
 
         public DateTime RegisteredAt{ get; set; }
+
+        public DateTime? LastLoggedInAt { get; set; }
     }
 }

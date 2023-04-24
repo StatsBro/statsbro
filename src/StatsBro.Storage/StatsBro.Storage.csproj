@@ -28,4 +28,22 @@
     <ProjectReference Include="..\StatsBro.Domain\StatsBro.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Database\SQL\006_Payments.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\SQL\005_Users_management.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\SQL\004_SiteApiSettings.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\SQL\003_UserLastLoginDate.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\SQL\002_SiteSharingSettings.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

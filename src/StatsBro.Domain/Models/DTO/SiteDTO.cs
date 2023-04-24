@@ -25,6 +25,7 @@ namespace StatsBro.Domain.Models.DTO
         public string? PersistQueryParams { get; set; }
 
         public string? IgnoreIPs { get; set; }
+        public string? OrganizationId { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

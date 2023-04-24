@@ -1,0 +1,64 @@
+﻿@model List<ProcessedEventRaw>
+
+<section id="liveReloadSection" class="dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Użytkownicy na żywo (ostatnie 15 minut)</h5>
+                    <p class="fs-0-75">
+                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                        Zaktualizowano @DateTime.Now.ToShortDateString() @DateTime.Now.ToLongTimeString()
+                    </p>
+
+                    @if (Model.Count > 0)
+                    {
+                        <div class="activity">
+                            @foreach (ProcessedEventRaw e in Model)
+                            {
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">@e.Timestamp.TimeAgo()</div>
+                                    <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
+                                    @if (e.Geo != null && !string.IsNullOrEmpty(e.Geo.CityName) && !string.IsNullOrEmpty(e.Geo.CountryName))
+                                    {
+                                        <div class="activity-content">
+                                            Użytkownik z @e.Geo.CityName w @e.Geo.CountryName
+                                            @if (e.EventName == "pageview")
+                                            {
+                                                <span>wyświetlił stronę</span> <span class="fw-bold text-dark">@e.Url.Path</span>
+                                            }
+                                            else
+                                            {
+                                                <span>wywołał zdarzenie </span> <span class="fw-bold text-dark">@e.EventName</span> <span>na stronie</span> <span class="fw-bold text-dark"> @e.Url.Path</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="activity-content">
+                                            Użytkownik
+                                            @if (e.EventName == "pageview")
+                                            {
+                                                <span>wyświetlił stronę</span> <span class="fw-bold text-dark">@e.Url.Path</span>
+                                            }
+                                            else
+                                            {
+                                                <span>wywołał zdarzenie </span> <span class="fw-bold text-dark">@e.EventName</span> <span>na stronie</span> <span class="fw-bold text-dark"> @e.Url.Path</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <h2>Na razie nikogo nie ma</h2>
+                        <img src="~/assets/img/error.svg" class="img-fluid py-5" width="400" alt="Error">
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

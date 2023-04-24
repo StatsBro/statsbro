@@ -12,17 +12,16 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿namespace StatsBro.Host.Panel.Models
-{
-    public class TimeSeriesViewModel
-    {
-        public List<TimeSeriesValuePoint> Values { get; set; } = null!;
-        public string Name { get; set; } = null!;
+namespace StatsBro.Host.Panel.Models;
 
-        public string ValsToJSString()
-        {
-            var vals = string.Join(", ", Values.Select(v => v.Value));
-            return $"{{ name: '{Name}', data: [{vals}] }},";
-        }
+public class TimeSeriesViewModel
+{
+    public List<TimeSeriesValuePoint> Values { get; set; } = null!;
+    public string Name { get; set; } = null!;
+
+    public string ValsToJSString()
+    {
+        var vals = string.Join(", ", Values.Select(v => v.Value));
+        return $"{{ name: '{Name}', data: [{vals}] }},";
     }
 }

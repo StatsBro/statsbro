@@ -12,11 +12,10 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿namespace StatsBro.Host.Panel.Models
+﻿namespace StatsBro.Host.Panel.Models;
+
+public class PieChartItem
 {
-    public class PieChartItem
-    {
-        public string Name { get; set; } = null!;
-        public long Value { get; set; }
-    }
+    public string Name { get; set; } = null!;
+    public long Value { get; set; }
 }

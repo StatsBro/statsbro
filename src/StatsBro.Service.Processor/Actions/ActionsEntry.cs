@@ -14,6 +14,7 @@
  */
 ﻿namespace StatsBro.Service.Processor.Actions;
 
+using Microsoft.Extensions.Logging;
 using StatsBro.Domain.Models;
 using System;
 using System.Threading.Tasks;
@@ -30,6 +31,8 @@ internal partial class ActionsEntry : IActionsEntry
     private readonly IEventPayloadDeserializer _payloadDeserializer;
     private readonly IEventPyloadFilter _eventPyloadFilter;
     private readonly IContentProcessor _eventPayloadProcessor;
+    private readonly IReferrerTimeSpentUpdate _timeSpenUpdate;
+    private readonly ILogger<ActionsEntry> _logger;   
 
     // TODO: in case performace issues use Disruptor https://lmax-exchange.github.io/disruptor/user-guide/index.html
     // .net implementation: https://github.com/disruptor-net/Disruptor-net + description: https://medium.com/@ocoanet/improving-net-disruptor-performance-part-1-bc27995bca48
@@ -38,13 +41,17 @@ internal partial class ActionsEntry : IActionsEntry
         IPushToElastic pushToElastic,
         IEventPayloadDeserializer payloadDeserializer,
         IEventPyloadFilter eventPyloadFilter,
-        IContentProcessor eventPayloadProcessor
+        IContentProcessor eventPayloadProcessor,
+        IReferrerTimeSpentUpdate timeSpentUpdate,
+        ILogger<ActionsEntry> logger
         )
     {
         this._pushToElastic = pushToElastic;
         this._payloadDeserializer = payloadDeserializer;
         this._eventPyloadFilter = eventPyloadFilter;
         this._eventPayloadProcessor = eventPayloadProcessor;
+        this._timeSpenUpdate = timeSpentUpdate;
+        this._logger = logger;
 
         //// TODO: this is crap which dies after a while
         //var deserializeQueueMessageAction = new TransformBlock<ReadOnlyMemory<byte>, EventPayloadContent?>(this._payloadDeserializer.Act);
@@ -83,10 +90,12 @@ internal partial class ActionsEntry : IActionsEntry
         var filtered = this._eventPyloadFilter.Act(deserialized);
         if(filtered == null)
         {
+            this._logger.LogDebug("message dropped by filter {domain}", deserialized?.Domain);
             return;
         }
 
         var processedPaylod = this._eventPayloadProcessor.Act(filtered);
         await this._pushToElastic.Act(new SiteVisitData[] { processedPaylod });
+        await this._timeSpenUpdate.Act(processedPaylod);
     }
 }

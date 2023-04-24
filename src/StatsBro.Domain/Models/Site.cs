@@ -26,6 +26,8 @@ namespace StatsBro.Domain.Models
 
         public Guid UserId { get; set; }
 
+        public Guid OrganizationId { get; set; }
+
         public bool IsScriptLive { get; set; }
 
         public List<string> PersistQueryParamsList { get; set; } = new List<string>();

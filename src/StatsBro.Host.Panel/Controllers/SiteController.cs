@@ -22,6 +22,7 @@ using StatsBro.Domain.Models.Exceptions;
 using StatsBro.Host.Panel.Extensions;
 using StatsBro.Host.Panel.Logic;
 using StatsBro.Host.Panel.Models.Forms;
+using StatsBro.Host.Panel.Models.Forms.Settings;
 using System.Text;
 
 
@@ -30,26 +31,61 @@ public class SiteController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly SiteLogic _siteLogic;
+    private readonly OrganizationLogic _organizationLogic;
     private readonly IStringLocalizer<HomeController> _localizer;
+    private readonly ISubscriptionPlanGuard _subscriptionPlanGuard;
 
-    public SiteController(ILogger<HomeController> logger, SiteLogic siteLogic, IStringLocalizer<HomeController> localizer)
+    public SiteController(
+        ILogger<HomeController> logger,
+        SiteLogic siteLogic,
+        OrganizationLogic organizationLogic,
+        IStringLocalizer<HomeController> localizer,
+        ISubscriptionPlanGuard subscriptionPlanGuard)
     {
         _logger = logger;
         _siteLogic = siteLogic;
+        _organizationLogic = organizationLogic;
         _localizer = localizer;
+        _subscriptionPlanGuard = subscriptionPlanGuard;
     }
 
     public async Task<IActionResult> IndexAsync()
     {
-        var sites = await _siteLogic.GetSitesAsync(HttpContext.User.GetUserId());
+        try
+        {
+            var organizationId = User.GetOrganizationId();
+            var organization = await _organizationLogic.GetOrganizationAsync(organizationId);
 
-        return View(sites);
+            var userId = User.GetUserId();
+            var sites = await _siteLogic.GetSitesAsync(userId, organizationId);
+
+            if (!_subscriptionPlanGuard.IsSubscriptionPlanExpired(organization))
+            {
+                return RedirectToAction("Index", "Payment");
+            }
+            ViewBag.CanAddMoreDomains = false;
+            if (User.IsInRole(StatsBro.Domain.Models.DTO.OrganizationUserRole.Admin.ToString()))
+            {
+                ViewBag.CanAddMoreDomains = _subscriptionPlanGuard.CanAddMoreDomains(organization, sites.Count);
+            }
+
+            return View(sites);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            this._logger.LogError(ex, "There is something wrong with data integrity in session");
+            this._logger.LogError("redirecting user to logout");
+            
+            return RedirectToAction("Logout", "Home");
+        }
     }
 
     [HttpGet("Site/Script/{siteId}")]
     public async Task<IActionResult> ScriptAsync(Guid siteId)
     {
-        var site = await _siteLogic.GetSiteAsync(HttpContext.User.GetUserId(), siteId);
+        var userId = HttpContext.User.GetUserId();
+        var organizationId = HttpContext.User.GetOrganizationId();
+        var site = await _siteLogic.GetSiteAsync(userId, organizationId, siteId);
         if (site == null)
         {
             return NotFound();
@@ -59,34 +95,189 @@ public class SiteController : Controller
     }
 
     [HttpGet("Site/Settings/{siteId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SettingsAsync(Guid siteId)
     {
-        var site = await _siteLogic.GetSiteAsync(HttpContext.User.GetUserId(), siteId);
-        if (site == null)
+        var model = await GetSettingsFormModel(siteId);
+        if (model == null)
         {
             return NotFound();
         }
 
-        var model = new SiteSettingsFormModel
+        var organizationId = User.GetOrganizationId();
+        var organization = await _organizationLogic.GetOrganizationAsync(organizationId);
+        if (!_subscriptionPlanGuard.IsSubscriptionPlanExpired(organization))
         {
-            Id = site.Id,
-            SiteUrl = $"https://{site.Domain}",
-            Domain = site.Domain,
-            IgnoreIPsList = string.Join(Consts.SiteSettingsIPsSeparator, site.IgnoreIPsList),
-            PersistQueryParamsList = string.Join(Consts.SiteSettingsQueryParamsSeparator, site.PersistQueryParamsList)
-        };
+            return RedirectToAction("Index", "Payment");
+        }
 
         return View(model);
     }
 
-    [HttpPost("Site/Settings/{siteId}")]
-    public async Task<IActionResult> SettingsAsync(SiteSettingsFormModel model)
+    private async Task<SiteSettingsFormModel?> GetSettingsFormModel(Guid siteId)
+    {
+        var userId = HttpContext.User.GetUserId();
+        var organizationId = HttpContext.User.GetOrganizationId();
+        var site = await _siteLogic.GetSiteAsync(userId, organizationId, siteId);
+        if (site == null)
+        {
+            return null;
+        }
+        
+        var sharingSettings = await _siteLogic.GetSiteSharingSettingsAsync(siteId, Url);
+        var model = new SiteSettingsFormModel
+        {
+            General = new GeneralSettingsFormModel
+            {
+                Id = site.Id,
+                SiteUrl = $"https://{site.Domain}",
+                Domain = site.Domain,
+                IgnoreIPsList = string.Join(Consts.SiteSettingsIPsSeparator, site.IgnoreIPsList),
+                PersistQueryParamsList = string.Join(Consts.SiteSettingsQueryParamsSeparator, site.PersistQueryParamsList)
+            },
+            Sharing = sharingSettings
+        };
+
+        return model;
+    }
+
+    [HttpPost("Site/SettingsGeneral")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SaveSettingsGeneralAsync(GeneralSettingsFormModel model)
+    {
+        var settingsModel = await GetSettingsFormModel(model.Id);
+        if (settingsModel == null)
+        {
+            return NotFound();
+        }
+
+        settingsModel.General = model;
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var userId = User.GetUserId();
+                var organizationId = User.GetOrganizationId();
+                await _siteLogic.SaveSiteAsync(userId, organizationId, model);
+            }
+            catch (ValidationException exc)
+            {
+                ModelState.AddModelError(exc.Property, exc.Message);
+                model.Errors.Add(_localizer["Validation error"]);
+                return View("Settings", settingsModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error when trying to save settings");
+                model.Errors.Add("Wystąpił nieznany błąd. Skontaktuj się z nami.");
+                return View("Settings", settingsModel);
+            }
+
+            return RedirectToAction("Settings", "Site", new { siteId = model.Id });
+        }
+        else
+        {
+            model.LoadErrors(ModelState);
+            return View("Settings", settingsModel);
+        }
+    }
+
+    [HttpPost("Site/SettingsSharing")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SaveSettingsSharingAsync(SharingSettingsFormModel model)
+    {
+        var settingsModel = await GetSettingsFormModel(model.Id);
+        if (settingsModel == null)
+        {
+            return NotFound();
+        }
+
+        settingsModel.Sharing = model;
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await _siteLogic.SaveSiteSharingSettingsAsync(model);
+                await _siteLogic.SaveSiteApiSettingsAsync(model);
+            }
+            catch (ValidationException exc)
+            {
+                ModelState.AddModelError(exc.Property, exc.Message);
+                model.Errors.Add(_localizer["Validation error"]);
+                return View("Settings", settingsModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error when trying to save settings");
+                model.Errors.Add("Wystąpił nieznany błąd. Skontaktuj się z nami.");
+                return View("Settings", settingsModel);
+            }
+
+            return RedirectToAction("Settings", "Site", new { siteId = model.Id }, "sharing-tab");
+        }
+        else
+        {
+            model.LoadErrors(ModelState);
+            return View("Settings", settingsModel);
+        }
+    }
+
+    [HttpGet("Site/DataExport/{siteId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DataExportAsync(Guid siteId)
+    {
+        var userId = HttpContext.User.GetUserId();
+        var organizationId = HttpContext.User.GetOrganizationId();
+
+        var organization = await _organizationLogic.GetOrganizationAsync(organizationId);
+        if (!_subscriptionPlanGuard.IsSubscriptionPlanExpired(organization))
+        {
+            return RedirectToAction("Index", "Payment");
+        }
+
+        var site = await _siteLogic.GetSiteAsync(userId, organizationId, siteId);
+        
+        return View(site);
+    }
+
+    [HttpGet("Site/DataExportFile/{siteId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DataExportFileAsync(Guid siteId, DateTimeOffset from, DateTimeOffset to)
+    {
+        var userId = HttpContext.User.GetUserId();
+        var organizationId = HttpContext.User.GetOrganizationId();
+        string result = await _siteLogic.GetRawDataFileAsync(userId, organizationId, siteId, from, to);
+        
+        return File(Encoding.UTF8.GetBytes(result), "text/csv", "statsbro_export.csv");
+    }
+
+    [HttpGet("Site/New")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult NewAsync()
+    {
+        return View();
+    }
+
+    [HttpPost("Site/New")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> NewAsync(AddSiteFormModel model)
     {
         if (ModelState.IsValid)
         {
             try
             {
-                await _siteLogic.SaveSiteAsync(HttpContext.User.GetUserId(), model);
+                var orgId = User.GetOrganizationId();
+                var canAddMoreDomains = await _subscriptionPlanGuard.CanAddMoreDomainsAsync(orgId);
+
+                if (!canAddMoreDomains)
+                {
+                    _logger.LogWarning("For {organizationId} there was a try to add new domain/site but subscription plan limit was reached.", orgId);
+                    return View(model);
+                }
+
+                var userId = User.GetUserId();
+                var site = await _siteLogic.AddNewSiteAsync(userId, orgId, model.SiteUrl);
+                return RedirectToAction("Script", "Site", new { siteId = site.Id });
             }
             catch (ValidationException exc)
             {
@@ -96,33 +287,15 @@ public class SiteController : Controller
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unknown error when trying to save settings");
-                model.Errors.Add("Wystąpił nieznany błąd. Skontaktuj się z nami.");
+                _logger.LogError(ex, "Unknown error when trying to add new site");
+                model.Errors.Add(_localizer["Unknown error"]);
                 return View(model);
             }
-
-            return RedirectToAction("Index", "Site");
         }
         else
         {
             model.LoadErrors(ModelState);
             return View(model);
         }
-    }
-
-    [HttpGet("Site/DataExport/{siteId}")]
-    public async Task<IActionResult> DataExportAsync(Guid siteId)
-    {
-        var site = await _siteLogic.GetSiteAsync(HttpContext.User.GetUserId(), siteId);
-        
-        return View(site);
-    }
-
-    [HttpGet("Site/DataExportFile/{siteId}")]
-    public async Task<IActionResult> DataExportFileAsync(Guid siteId, DateTimeOffset from, DateTimeOffset to)
-    {
-        string result = await _siteLogic.GetRawDataAsync(HttpContext.User.GetUserId(), siteId, from, to);
-        
-        return File(Encoding.UTF8.GetBytes(result), "text/csv", "statsbro_export.csv");
     }
 }

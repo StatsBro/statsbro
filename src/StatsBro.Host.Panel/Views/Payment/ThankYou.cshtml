@@ -1,0 +1,68 @@
+﻿@model PaymentThankYouModel
+@{
+    Layout = "_Layout";
+}
+<div class="pagetitle">
+    <h1>Podsumowanie płatności</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a asp-controller="Payment" asp-action="Index">Płatności</a></li>
+            <li class="breadcrumb-item active">Podsumowanie płatności</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+
+<div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
+  <div class="col-md-5 p-lg-5 mx-auto my-5">   
+    @if (Model.StatusCode == PaymentThankYouModel.Success)
+    {
+        @if (Model.PaymentStatus == PaymentStatus.New)
+        {
+            <h1 class="display-4 font-weight-normal">Płatność rozpoczęta</h1>
+            <p class="lead font-weight-normal">Wróć na stronę serwisu płatności, aby dokończyć.</p>
+        }
+        
+        @if (Model.PaymentStatus == PaymentStatus.Processing)
+        {
+            <h1 class="display-4 font-weight-normal">Płatność w trakcie przetwarzania</h1>
+            <button class="btn btn-outline-secondary" onclick='window.location.reload()'>Sprawdź status</button>
+        }
+
+        @if (Model.PaymentStatus == PaymentStatus.Completed)
+        {
+            <h1 class="display-4 font-weight-normal">Dziękujemy</h1>
+            <p class="lead font-weight-normal">Płatność zakończyła się sukcesem.</p>
+            <p>Fakturę otrzymasz od nas mailem w ciągu 3 dni roboczych</p>
+            <a class="btn btn-outline-secondary" asp-controller="Payment" asp-action="Index">Zobacz subskrypcje</a>
+        }
+
+        @if (Model.PaymentStatus == PaymentStatus.Cancelled)
+        {
+            <h1 class="display-4 font-weight-normal">Płatność została anulowna</h1>
+            <p class="lead font-weight-normal">
+                Zapraszamy do ponownego zakupu.
+                <a class="btn btn-outline-primary" asp-controller="Payment" asp-action="Index">Wybierz pakiet</a>
+            </p>
+        }
+
+        @if (Model.PaymentStatus == PaymentStatus.Error)
+        {
+            <h1 class="display-4 font-weight-normal">Błąd</h1>
+            <p class="lead font-weight-normal">
+                Zapraszamy do ponownego zakupu.
+                <a class="btn btn-outline-primary" asp-controller="Payment" asp-action="Index">Wybierz pakiet</a>
+            </p>
+        }
+    } 
+    else
+    {
+        <p class="lead font-weight-normal">
+            Coś poszło nie tak :(
+        </p>
+    }
+
+  </div>
+  <div class="product-device shadow-sm d-none d-md-block"></div>
+  <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>

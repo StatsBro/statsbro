@@ -1,0 +1,33 @@
+﻿@model AddSiteFormModel
+@{
+    Layout = "_Layout";
+}
+
+<div class="pagetitle">
+    <h1>Dodaj nową stronę</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Site" asp-action="Index">Strony</a></li>
+            <li class="breadcrumb-item active">Dodaj nową stronę</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+<div class="card col-12 col-md-6">
+    <div class="card-body">
+        <h5 class="card-title">Nowa strona</h5>
+        <form class="row g-3" method="post" asp-action="New">
+            @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+            
+            <div class="col-12">
+                <label for="yourDomain" class="form-label">Adres strony</label>
+                <p class="small text-secondary">Adres strony do zainstalowania statystyk, np. https://mojastrona.com</p>
+                <input type="url" name="siteUrl" class="form-control" id="yourDomain" required>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Zapisz</button>
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -12,22 +12,21 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿namespace StatsBro.Host.Panel.Models
+﻿namespace StatsBro.Host.Panel.Models;
+
+public class PieChartViewModel
 {
-    public class PieChartViewModel
+    public List<PieChartItem> Items { get; set; } = null!;
+
+    public string SeriesToJSString()
     {
-        public List<PieChartItem> Items { get; set; } = null!;
+        var vals = string.Join(", ", Items.Select(v => v.Value));
+        return $"[{vals}]";
+    }
 
-        public string SeriesToJSString()
-        {
-            var vals = string.Join(", ", Items.Select(v => v.Value));
-            return $"[{vals}]";
-        }
-
-        public string LabelsToJSString()
-        {
-            var vals = string.Join(", ", Items.Select(v => $"'{v.Name}'"));
-            return $"[{vals}]";
-        }
+    public string LabelsToJSString()
+    {
+        var vals = string.Join(", ", Items.Select(v => $"'<a href=\"onet.pl\">{v.Name}</a>'"));
+        return $"[{vals}]";
     }
 }

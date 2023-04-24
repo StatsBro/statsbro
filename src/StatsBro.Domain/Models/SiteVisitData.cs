@@ -68,5 +68,8 @@ namespace StatsBro.Domain.Models
 
         [Nest.PropertyName("script_version")]
         public int ScriptVersion { get; set; }
+
+        [Nest.PropertyName("time_spent")]
+        public long? TimeSpentMillis { get; set; } // in milliseconds
     }
 }

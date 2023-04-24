@@ -21,9 +21,6 @@ using StatsBro.Domain.Models;
 using StatsBro.Service.Processor.Service;
 using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Web;
 
 public interface IContentProcessor
@@ -33,52 +30,17 @@ public interface IContentProcessor
 
 public class ContentProcessor : IContentProcessor
 {
-    private readonly ServiceConfig _serviceConfig;
     private readonly ISitesConfigurations _sitesConfig;
-    private readonly string _pepper;
-    private readonly SHA256 _sha256Hash;
-    private readonly ILogger _logger;  
+    private readonly IHashCalculator _hashCalculator;
+    
 
     public ContentProcessor(
         ISitesConfigurations sitesConfig,
-        IOptions<ServiceConfig> serviceConfigOptions, 
+        IHashCalculatorFactory hashCalculatorFactory,
         ILogger<ContentProcessor> logger)
     {
-        this._sitesConfig = sitesConfig;
-        this._serviceConfig = serviceConfigOptions.Value;
-        this._logger = logger;
-        this._sha256Hash = SHA256.Create();
-
-        if (this._serviceConfig.Pepper != "")
-        {
-            this._pepper = this._serviceConfig.Pepper;
-        }
-
-        using var store = new X509Store(StoreLocation.LocalMachine);
-        store.Open(OpenFlags.ReadOnly);
-        var certs = store.Certificates.Find(X509FindType.FindBySubjectName, this._serviceConfig.PepperCertSubjectName, false);
-        if (certs.Count == 0)
-        {
-            this._logger.LogError("Certificate is missing, encryption will not be so strong");
-            this._pepper = "111111111111222222222223333333333344444444444455555555555555666666666666666666";
-        } 
-        else
-        {
-            var certificatePrivateKey = certs[0].GetRSAPrivateKey();
-            if (certificatePrivateKey == null)
-            {
-                this._logger.LogError("Certificate does not have a private RSA key, encryption will not be so strong");
-                this._pepper = "111111111111222222222223333333333344444444444455555555555555666666666666666666";
-            }
-            else
-            {
-                // New CERT with keys: https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl
-                using var hmac = new HMACSHA512();
-                var shaHash = this._sha256Hash.ComputeHash(certificatePrivateKey.ExportRSAPrivateKey());
-                var hmacHash = hmac.ComputeHash(certificatePrivateKey.ExportRSAPrivateKey());
-                this._pepper = Convert.ToBase64String(shaHash.Concat(hmacHash).ToArray());                
-            }
-        }
+        this._sitesConfig = sitesConfig;        
+        this._hashCalculator = hashCalculatorFactory.Create();
     }
 
     public SiteVisitData Act(SiteVisitData payload)
@@ -94,9 +56,7 @@ public class ContentProcessor : IContentProcessor
 
     private void CalculateHash(SiteVisitData payload)
     {
-        var rawString = string.Join('|', this._pepper, payload.WindowWidth, payload.WindowHeight, payload.TouchPoints, payload.IP, payload.UserAgent, payload.Domain);
-        var bytes = this._sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawString));
-        payload.Hash = Convert.ToBase64String(bytes, 0, bytes.Length);
+        payload.Hash = this._hashCalculator.Calculate(payload.WindowWidth, payload.WindowHeight, payload.TouchPoints, payload.IP, payload.UserAgent, payload.Domain);
     }
 
     private void CleanUpQueryParamsForUrl(SiteVisitData payload)
@@ -115,7 +75,6 @@ public class ContentProcessor : IContentProcessor
         }
     }
 
-    // TODO: remember that allowedKeys in DB should be lowecased
     private static string RemoveQueryParams(string url, string[] allowedKeys)
     {
         if (url == null)

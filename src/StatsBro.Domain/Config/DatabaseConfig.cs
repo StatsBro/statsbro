@@ -12,7 +12,7 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿namespace StatsBro.Domain.Config
+namespace StatsBro.Domain.Config
 {
     public class DatabaseConfig
     {

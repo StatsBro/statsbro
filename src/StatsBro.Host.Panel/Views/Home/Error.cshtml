@@ -1,0 +1,20 @@
+﻿@model ErrorViewModel;
+@{
+    Layout = "_PublicLayout";
+}
+<section class="section error-404 min-vh-100 d-flex flex-column align-items-center justify-content-center">
+        @if (Model.StatusCode == 404)
+        {
+            <h1>404</h1>
+            <h2>Nie mamy strony, której szukasz</h2>
+        }
+        else
+        {
+            <h1>Wystąpił nieznany błąd</h1>
+            <h2>Skontaktuj się z nami by uzyskać pomoc.</h2>
+        }
+        
+        <a class="btn" href="/">Wróc do pulpitu</a>
+        <img src="~/assets/img/error.svg" class="img-fluid py-5" alt="Error">
+
+</section>

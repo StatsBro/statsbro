@@ -19,8 +19,8 @@ public class Program
 {
     public static void Main() 
     {
-        //var staticGenerator = new StaticDataGenerator();
-        //staticGenerator.Run();
+        var staticGenerator = new StaticDataGenerator();
+        staticGenerator.Run();
 
         //var dummyGenerator = new DummyDataGenerator();
         //dummyGenerator.Run();

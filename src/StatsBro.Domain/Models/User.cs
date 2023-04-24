@@ -12,7 +12,7 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿using System;
+using System;
 
 namespace StatsBro.Domain.Models
 {
@@ -28,5 +28,18 @@ namespace StatsBro.Domain.Models
         public string PasswordSalt { get; set; } = null!;
 
         public DateTimeOffset RegisteredAt { get; set; }
+    }
+
+    public class Organization
+    {
+        public Guid Id { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public DateTime UpdatedAt { get; set; }
+
+        public SubscriptionType SubscriptionType { get; set; }
+
+        public DateTime SubscriptionValidTo { get; set; }
     }
 }

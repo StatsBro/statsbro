@@ -12,14 +12,15 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace StatsBro.Host.Panel.Models.Forms
 {
     public class UserEditFormModel : FormModel
     {
         [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj adres email")]
-        [DataType(DataType.EmailAddress, ErrorMessage = "Twój adres email ma nieprawidłowy format")]
+        [DataType(DataType.EmailAddress, ErrorMessage = "Adres email ma nieprawidłowy format")]
+        [EmailAddress(ErrorMessage = "Adres email ma nieprawidłowy format")]
         public string Email { get; set; } = null!;
 
         public string? Password { get; set; }

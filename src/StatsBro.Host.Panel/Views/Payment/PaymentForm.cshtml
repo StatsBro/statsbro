@@ -1,0 +1,225 @@
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostingEnv
+@model PaymentFormModel
+@{
+    Layout = "_Layout";
+}
+
+<div class="pagetitle">
+    <h1>Płatności - zamówienie</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a asp-controller="Payment" asp-action="Index">Płatności</a></li>
+            <li class="breadcrumb-item active">Zamówienie</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<div class="col-md-4 order-md-2 mb-4">
+    <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">Twoje zamówienie</span>
+        <span class="badge badge-secondary badge-pill">3</span>
+    </h4>
+    <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between lh-condensed">
+            <div>
+                <h6 class="my-0">Produkt</h6>
+                <small class="text-muted">@Model.Name</small>
+            </div>
+            <span class="text-muted">@Model.PriceNet <small>@Model.Currency</small></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between bg-light">
+            <div class="text-success">
+                <h6 class="my-0">Podatek VAT</h6>
+                <small class="text-muted">@Model.VATValue %</small>
+            </div>
+            <span class="text-muted">@Model.TotalVATAmount @Model.Currency</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+            <span>SUMA (@Model.Currency)</span>
+            <strong>@Model.TotalAmount</strong>
+        </li>
+    </ul>
+</div>
+<hr class="mb-4" />
+<h4>Dane do faktury</h4>
+<form id="invoice" method="post" action="/Payment/SaveInvoiceData">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="invoiceName">Imię i nazwisko / Nazwa firmy</label>
+            <input class="form-control" type="text" name="Name" id="invoiceName" required value="@Model.InviceAddressData.Name" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="invoiceAddresLine1">Ulica i nr</label>
+            <input class="form-control" type="text" name="AddressLine1" id="invoiceAddresLine1" required value="@Model.InviceAddressData.AddressLine1" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="invoicePostalCode">Kod pocztowy</label>
+            <input class="form-control" type="text" name="PostalCode" id="invoicePostalCode" required value="@Model.InviceAddressData.PostalCode" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="invoiceCity">Miejscowość</label>
+            <input class="form-control" type="text" name="City" id="invoiceCity" required value="@Model.InviceAddressData.City" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="invoiceNIP">NIP (opcjonalnie)</label>
+            <input class="form-control" type="text" name="NIP" id="invoiceNIP" value="@Model.InviceAddressData.NIP" />
+        </div>
+    </div>
+</form>
+<hr class="mb-4" />
+<h4>Płatność PayU</h4>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label for="cc-number">Numer karty kredytowej</label>
+        <div class="form-control" id="cc-number"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2 mb-2">
+        <label for="cc-expiration">Ważna do</label>
+        <div class="form-control" id="cc-expiration"></div>
+    </div>
+    <div class="col-md-2 mb-2">
+        <label for="cc-cvv">CVV</label>
+        <div class="form-control" id="cc-cvv"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 mb-2">
+        <button id="tokenizeButton" type="button" class="w-100 btn btn-lg btn-primary">Zapłać</button>
+        <small>Bezpieczne płatności obsługuje PayU S.A.</small>
+        <div id="responseTokenize"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <environment include="Production">
+        <script type="text/javascript" src="https://secure.payu.com/javascript/sdk"></script>
+    </environment>
+    <environment exclude="Production">
+        <script type="text/javascript" src="https://secure.snd.payu.com/javascript/sdk"></script>
+    </environment>
+    <script>
+        var subscriptionTypeSelected = @((int)Model.SubscriptionType);
+        var renderError = function(element, errors, button) {
+            element.className = 'text-danger';
+            var messages = [];
+            errors.forEach(function(error) {
+                messages.push(error.message);
+            });
+            element.innerText = messages.join(', ');
+        
+            button.removeAttribute("disabled"); // TODO: make it working with async
+        };
+
+        var renderSuccess = function(element, body, button) {
+            try {
+                element.className = 'response-success';
+                fetch("proceedpayment", {
+                    credentials: "same-origin",
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(
+                        {
+                            cardToken: body.token,
+                            cardNumberMasked: body.mask,
+                            subscriptionType: subscriptionTypeSelected,
+                            provider: 1
+                        })
+                })
+                    .then((response) => {
+                        if(response.status == 200) {
+                            response.json().then((data) => {
+                                element.innerHTML = "Nastąpi przekierowanie na stronę PayU, aby dokończyć płatność.<br> Jeśli przekierowanie nie nastąpi automatycznie, to kliknij w: <a href='" + data.redirectUri + "'>dokończ płatność</a>"
+                                window.location.href = data.redirectUri;
+                            })
+                        } else {
+                            response.json().then((data) => {
+                                if (data) {
+                                    element.innerHTML = JSON.stringify(data);
+                                }
+
+                                button.removeAttribute("disabled"); // TODO: make it working with async
+                            })
+                        }
+                    })
+                    
+            }
+            catch (e) {
+                console.error("Error", e)
+                element.innerHTML = "ERROR";
+            }
+        };
+
+        var saveInvoiceData = function() {
+            var form = document.forms.invoice;
+            var isValid = form.reportValidity();
+            if (!isValid) {
+                return false;
+            }
+
+            var data = new FormData(form);
+            var req = new XMLHttpRequest();
+            req.open(form.method, form.action, false);
+            req.send(data);
+            
+            return true;
+        }
+        
+        var payu = PayU('@Model.PayUClientId', { dev: @(hostingEnv.EnvironmentName == Environments.Development ? "true" : "false" )})
+        var secureForms = payu.secureForms();
+        var optionsForms = {
+            style: {
+                basic: {
+                    fontSize: '18px'
+                }
+            },
+            lang: 'pl',
+            placeholder: {
+                number: '',
+                date: 'MM/YY',
+                cvv: 'CVV'
+            }
+        }
+
+        var cardNumber = secureForms.add('number', optionsForms);
+        var cardDate = secureForms.add('date', optionsForms);
+        var cardCvv = secureForms.add('cvv', optionsForms);
+
+        cardNumber.render('#cc-number')
+        cardDate.render('#cc-expiration')
+        cardCvv.render('#cc-cvv')
+
+        var tokenizeButton = document.getElementById('tokenizeButton');
+        var responseElement = document.getElementById('responseTokenize');
+
+        tokenizeButton.addEventListener('click', function() {
+            if (!saveInvoiceData()) {
+                return false;
+            }
+
+            responseElement.innerText = '';
+            tokenizeButton.setAttribute("disabled", true); // TODO: make it working with async
+
+            try {
+                payu.tokenize('MULTI').then(function(result) {
+                    result.status === 'SUCCESS'
+                        ? renderSuccess(responseElement, result.body, tokenizeButton)
+                        : renderError(responseElement, result.error.messages, tokenizeButton);
+                });
+            } catch (e) {
+                console.log(e); // TODO: push it to BE to know that something went wrong
+            }
+        });
+    </script>
+}

@@ -26,7 +26,7 @@ public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly RabbitMQConfig _queueConfig;
-    private readonly SemaphoreSlim _semaphore = new(Environment.ProcessorCount, Environment.ProcessorCount);
+    private readonly SemaphoreSlim _semaphore;
     private readonly IActionsEntry _actionsEntry;
     private readonly IInitializer _initializer;
     private readonly ISitesConfigurations _sitesConfigurations;
@@ -47,6 +47,11 @@ public class Worker : BackgroundService
         this._initializer = initializer;
         this._sitesConfigurations = sitesConfigurations;
         this._logger = logger;
+
+        this._semaphore = new(Environment.ProcessorCount, Environment.ProcessorCount);
+#if DEBUG
+        this._semaphore = new SemaphoreSlim(1);
+#endif
     }
 
     public override Task StartAsync(CancellationToken cancellationToken)

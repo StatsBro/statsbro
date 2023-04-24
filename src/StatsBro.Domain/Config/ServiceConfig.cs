@@ -19,5 +19,7 @@
         public string Pepper { get; set; } = null!;
 
         public string PepperCertSubjectName { get; set; } = "StatsBroP";
+
+        public string HashKey { get; set; } = "StatsBro";
     }
 }

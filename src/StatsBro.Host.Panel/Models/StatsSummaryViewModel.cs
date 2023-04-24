@@ -21,6 +21,7 @@
         public long TotalEngagedUsersCount { get; set; }
         public int? TotalEngagedUsersChange { get; set; }
         public long TotalPageViews { get; set; }
+        public long TotalCustomEvents { get; set; }
         public int? TotalPageViewChange { get; set; }
         public TimeSpan AverageVisitLength { get; set; }
         public int? AverageVisitLengthChange { get; set; }

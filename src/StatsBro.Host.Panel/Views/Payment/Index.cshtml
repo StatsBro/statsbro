@@ -1,0 +1,181 @@
+﻿@model StatsBro.Host.Panel.Models.PaymentIndexModel
+@{
+    Layout = "_Layout";
+}
+<div class="pagetitle">
+    <h1>Płatności</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a asp-controller="Payment" asp-action="Index">Płatności</a></li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+@if (!Model.IsSubscriptionValid)
+{
+    <div class="alert alert-danger" role="alert">
+        Subskrypcja wygasła
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+
+        <h5 class="card-title">Twoja subskrypcja StatsBro</h5>
+        <div class="row">
+            <div class="col-lg-3 col-md-4 label ">Wybrany pakiet</div>
+            <div class="col-lg-9 col-md-8">@Model.SubscriptionName</div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-3 col-md-4 label">Ważny do</div>
+            <div class="col-lg-9 col-md-8">@Model.SubscriptionValidTo.ToString("yyyy-MM-dd")</div>
+        </div>
+
+        @if (@Model.IsSubscriptionCancelled)
+        {
+            <div class="row">
+                <div class="col-lg-3 col-md-4 label">Status</div>
+                <div class="col-lg-9 col-md-8">Subskrypcja została anulowana</div>
+            </div>
+        }
+    </div>
+</div>
+
+@{
+    var choosePackageClass = Model.IsSubscriptionValid && Model.SubscriptionType != SubscriptionType.Trial ? "visually-hidden" : "";
+}
+@if (Model.IsSubscriptionValid && Model.SubscriptionType != SubscriptionType.Trial)
+{
+    <button type="button" class="btn btn-secondary mb-2" onclick="document.getElementById('choosePackage').classList.remove('visually-hidden');">Zmień pakiet</button>
+}
+
+<div id="choosePackage" class="@choosePackageClass">
+    <div class="mt-3 p-3 pb-md-4 mx-auto text-center">
+        <h4 class="fw-normal">Dostępne pakiety subskrypcji</h4>
+        <p class="text-body-secondary">
+            Prosty model rozliczeń w zależności od Twoich potrzeb.
+            Ceny netto. Opłata jest naliczana co 30 dni.
+            Masz 30 dni na darmowe wypróbowanie StatsBro i możesz zrezygnować z subskrypcji w każdej chwili.
+        </p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3 text-bg-primary border-primary">
+                    <h4 class="my-0 fw-normal">Personal</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">29 PLN<small class="text-body-secondary fw-light">/miesiąc</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>1 000 zdarzeń</li>
+                        <li>1 domena</li>
+                        <li>Własne zdarzenia</li>
+                        <li>Podgląd na żywo</li>
+                        <li>1 użytkownik panelu</li>
+                        <li>Nieograniczony zakres danych historycznych</li>
+                        <li>Dane przechowywane w EU</li>
+                        <li>Wsparcie techniczne</li>
+                        <li>&nbsp;</li>
+                        <li>&nbsp;</li>
+                        <li>&nbsp;</li>
+                    </ul>
+                    @if (Model.EligibleForSubscriptionTypes.Contains(SubscriptionType.Personal))
+                    {
+                        <form method="post" asp-action="PlanSelected">
+                            <button type="submit" class="w-100 btn btn-lg btn-primary">Wybieram</button>
+                            <input type="hidden" name="option" value="@SubscriptionType.Personal" />
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3 text-bg-primary border-primary">
+                    <h4 class="my-0 fw-normal">Business</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">149 PLN<small class="text-body-secondary fw-light">/miesiąc</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>100 000 zdarzeń</li>
+                        <li>50 domen</li>
+                        <li>Własne zdarzenia</li>
+                        <li>Podgląd na żywo</li>
+                        <li>10 użytkowników panelu</li>
+                        <li>Nieograniczony zakres danych historycznych</li>
+                        <li>Dane przechowywane w EU</li>
+                        <li>Wsparcie techniczne</li>
+                        <li>API statystyk</li>
+                        <li>Udostępnianie statystyk linkiem</li>
+                        <li>&nbsp;</li>
+                    </ul>
+                    @if (Model.EligibleForSubscriptionTypes.Contains(SubscriptionType.Business))
+                    {
+                        <form method="post" asp-action="PlanSelected">
+                            <button type="submit" class="w-100 btn btn-lg btn-primary">Wybieram</button>
+                            <input type="hidden" name="option" value="@SubscriptionType.Business" />
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm border-primary">
+                <div class="card-header py-3 text-bg-primary border-primary">
+                    <h4 class="my-0 fw-normal">Enterprise</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">2499 PLN<small class="text-body-secondary fw-light">/miesiąc</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Nieograniczona ilość zdarzeń</li>
+                        <li>100 domen</li>
+                        <li>Własne zdarzenia</li>
+                        <li>Podgląd na żywo</li>
+                        <li>Nieograniczona ilość użytkowników</li>
+                        <li>Nieograniczony zakres danych historycznych</li>
+                        <li>Dane przechowywane w EU</li>
+                        <li>Wsparcie techniczne</li>
+                        <li>API statystyk</li>
+                        <li>Udostępnianie statystyk linkiem</li>
+                        <li>Logowanie SSO</li>
+                    </ul>
+                    @if (Model.EligibleForSubscriptionTypes.Contains(SubscriptionType.Enterprise))
+                    {
+                        <form method="post" asp-action="PlanSelected">
+                            <button type="submit" class="w-100 btn btn-lg btn-primary">Wybieram</button>
+                            <input type="hidden" name="option" value="@SubscriptionType.Enterprise" />
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!Model.IsSubscriptionCancelled && Model.SubscriptionType != SubscriptionType.Trial && Model.IsSubscriptionValid)
+{
+    <div class="col-12">
+        <a class="btn btn-danger" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#modalDeleteQuestion">Anuluj subskrypcję</a>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalDeleteQuestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Anulowanie subskrypcji</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Czy na pewno chcesz anulować subskrypcję StatsBro?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie</button>
+                    <a class="btn btn-danger" asp-action="CancelSubscription">Tak</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

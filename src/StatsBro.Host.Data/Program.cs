@@ -12,6 +12,7 @@
  * along with this program. If not, see
  * <https://github.com/StatsBro/statsbro/blob/main/LICENSE>.
  */
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using StatsBro.Domain.Config;
 using StatsBro.Host.Data.Services;
