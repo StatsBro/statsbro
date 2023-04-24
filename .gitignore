@@ -13,6 +13,9 @@ dist/
 # development config files
 *.Development.json
 
+## example rest files
+*.rest
+
 # Compiled Python bytecode
 *.py[cod]
 
