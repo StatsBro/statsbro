@@ -34,6 +34,7 @@ public interface IDbRepository
     Task<IList<OrganizationUserDTO>> GetOrganizationUsersAsync(Guid organizationId);
     Task<Site> GetSiteAsync(Guid siteId, IDbTransaction transaction = null!);
     Task<Site?> GetSiteAsync(string domain);
+    Task<Guid?> SaveReferralAsync(Guid organizationId, string @ref, string? cid);
     Task<Site?> GetSiteByShareIdAsync(string linkShareId);
     Task<OrganizationAddressDTO?> GetOrganizationAddressLatestAsync(Guid organizationId);
     Task<User?> GetUserAsync(string email);
@@ -71,6 +72,8 @@ public interface IDbRepository
     Task SetOrganizationSubscriptionAsync(string organizationId, SubscriptionType subscriptionType, DateTime subscriptionContinueTo, IDbTransaction? transaction = null);
     Task SetOrganizationSubscriptionCancelledAsync(Guid organizationId, IDbTransaction? transaction = null);
     Task ClearOrganizationCreaditCardTokensAsync(Guid organizationId, IDbTransaction? transaction = null);
+    Task<MagicLinkDTO?> GetMagicLinkAsync(Guid linkId);
+    Task<Guid> AddMagicLinkAsync(MagicLinkDTO magicLink);
 }
 
 public class DbRepository : IDbRepository
@@ -889,6 +892,73 @@ public class DbRepository : IDbRepository
                 city = orgAddress.City,
                 nip = orgAddress.NIP,
             });
+    }
+
+    public async Task<Guid?> SaveReferralAsync(Guid organizationId, string @ref, string? cid)
+    {
+        var id = EnsureId((string?)null);
+        using var c = this.Connection;
+        var updatedCount = await c.ExecuteAsync(
+            @"INSERT INTO  
+                Referrals(id, organizationId, referralKey, cid)
+             VALUES(@id, @organizationId, @referralKey, @cid);",
+            new
+            {
+                id = id,
+                organizationId = organizationId,
+                referralKey = @ref,
+                cid = cid
+            });
+
+        return updatedCount > 0 ? id : null;
+    }
+
+    public async Task<MagicLinkDTO?> GetMagicLinkAsync(Guid linkId)
+    {
+        try
+        {
+            using var c = this.Connection;
+            var magicLink = await c.QueryFirstAsync<MagicLinkDTO>(
+               @"SELECT
+                    id, validTo, userId, origin, createdAt
+                FROM
+                    MagicLinks
+                WHERE
+                    id = @id
+                    COLLATE NOCASE
+               ;",
+               new
+               {
+                   id = linkId,
+               });
+
+            return magicLink;
+        }
+        catch (InvalidOperationException exc) when (exc.Message == "Sequence contains no elements")
+        {
+            return null;
+        }
+    }
+
+    public async Task<Guid> AddMagicLinkAsync(MagicLinkDTO magicLink)
+    {
+        magicLink.Id = EnsureId(magicLink.Id);
+
+        using var c = this.Connection;
+        await c.ExecuteAsync(
+            @"INSERT INTO 
+                MagicLinks(id, validTo, userId, origin)
+             VALUES(@id, @validTo, @userId, @origin)
+            ",
+            new
+            {
+                id = magicLink.Id,
+                validTo = magicLink.ValidTo,
+                userId = magicLink.UserId,
+                origin = magicLink.Origin.ToString(),
+            });
+
+        return magicLink.Id;
     }
 
     public async Task<IDbTransaction> BeginTransactionAsync()

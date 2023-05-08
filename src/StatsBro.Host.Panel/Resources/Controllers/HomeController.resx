@@ -135,6 +135,9 @@
   <data name="Validation error" xml:space="preserve">
     <value>Błąd walidacji danych</value>
   </data>
+  <data name="Validation error, check email or password" xml:space="preserve">
+    <value>Błąd walidachy danych, sprawdź email lub hasło</value>
+  </data>
   <data name="Wrong email or password" xml:space="preserve">
     <value>Błędny email lub hasło.</value>
   </data>

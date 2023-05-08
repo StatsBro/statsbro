@@ -1,5 +1,6 @@
 ﻿@{
     Layout = "_PublicLayout";
+    var kind = ViewBag.Kind != null ? (StatsBro.Host.Panel.Models.Forms.LoginKind)ViewBag.Kind : StatsBro.Host.Panel.Models.Forms.LoginKind.ByPassword;
 }
 
 <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
@@ -20,28 +21,54 @@
                         <div class="pt-4 pb-2">
                             <h5 class="card-title text-center pb-0 fs-4">Zaloguj się</h5>
                         </div>
+                        <div class='collapse @(kind == LoginKind.ByPassword ? "show" : "")' id="bypassword">
+                            <form class="row g-3" method="post" asp-action="Login">
+                                @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+                                <div class="col-12">
+                                    <label for="yourEmail" class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" id="yourEmail" required>
+                                </div>
 
-                        <form class="row g-3" method="post" asp-action="Login">
-                            @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
-                            <div class="col-12">
-                                <label for="yourEmail" class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" id="yourEmail" required>
-                            </div>
-
-                            <div class="col-12">
-                                <label for="yourPassword" class="form-label">Hasło</label>
-                                <input type="password" name="password" class="form-control" id="yourPassword" required>
-                            </div>
+                                <div class="col-12">
+                                    <label for="yourPassword" class="form-label">Hasło</label>
+                                    <input type="password" name="password" class="form-control" id="yourPassword" required>
+                                </div>
                             
-                            <div class="col-12">
-                                <button class="btn btn-primary w-100" type="submit">Zaloguj</button>
-                            </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary w-100" type="submit">Zaloguj</button>
+                                </div>
 
-                            <div class="col-12">
-                                <p class="small mb-0">Nie masz konta? <a href="/register">Zarejestruj się</a></p>
-                            </div>
+                                <div class="col-12">
+                                    <a id="btn-toggle-magiclink" class="btn btn-outline btn-sm w-100">Zaloguj się przez magiczny link</a>
+                                </div>
+                            </form>
+                        </div>
+                       
+                        <div class='collapse @(kind == LoginKind.ByMagicLink ? "show" : "")' id="bylink">
+                            <form class="row g-3" method="post" asp-action="LoginMagicLink">
+                                @await Html.PartialAsync("/Views/Shared/ValidationErrors.cshtml")
+                                <div class="col-12">
+                                    <label for="yourEmail" class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" id="yourEmail" required>
+                                </div>
 
-                        </form>
+                                <input type="hidden" name="timestamp" value=@DateTime.UtcNow.Ticks />
+                          
+                                <div class="col-12">
+                                    <button class="btn btn-primary w-100" type="submit">Wyślij magiczny link</button>
+                                </div>
+
+                                <div class="col-12">
+                                    <a id="btn-toggle-password" class="btn btn-outline btn-sm w-100">Zaloguj się używając hasła</a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <hr class="mt-3 mb-3"/>
+
+                        <div class="col-12">
+                            <p class="small mb-0">Nie masz konta? <a href="/register">Zarejestruj się</a></p>
+                        </div>
 
                     </div>
                 </div>
@@ -52,3 +79,29 @@
     </div>
 
 </section>
+
+
+@section Scripts {
+    <script>
+    // self executing function here
+    (function() {
+       // your page initialization code here
+       // the DOM will be available here
+
+       document.getElementById('btn-toggle-magiclink').addEventListener('click', function() {
+           var linksection = new bootstrap.Collapse(document.getElementById('bylink'));
+           linksection.show();
+           var passwordsection = new bootstrap.Collapse(document.getElementById('bypassword'));
+           passwordsection.hide();
+       });
+
+       document.getElementById('btn-toggle-password').addEventListener('click', function() {
+           var linksection = new bootstrap.Collapse(document.getElementById('bylink'));
+           linksection.hide();
+           var passwordsection = new bootstrap.Collapse(document.getElementById('bypassword'));
+           passwordsection.show();
+       });
+
+    })();
+    </script>
+}

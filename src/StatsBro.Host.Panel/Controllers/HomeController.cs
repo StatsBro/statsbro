@@ -19,11 +19,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using StatsBro.Domain.Helpers;
 using StatsBro.Domain.Models.Exceptions;
 using StatsBro.Host.Panel.Extensions;
 using StatsBro.Host.Panel.Logic;
 using StatsBro.Host.Panel.Models;
 using StatsBro.Host.Panel.Models.Forms;
+using StatsBro.Host.Panel.Models.Objects;
 using System.Diagnostics;
 
 
@@ -62,8 +64,12 @@ public class HomeController : Controller
 
     [HttpGet("register")]
     [AllowAnonymous]
-    public IActionResult Register()
+    public IActionResult Register(
+        [FromQuery]int? @ref, 
+        [FromQuery][System.ComponentModel.DataAnnotations.MaxLength(128)]string? cid
+    )
     {
+        ReferralLogic.SetReferralCookies(this.Request, this.Response, @ref, cid);
         return View();
     }
 
@@ -116,30 +122,117 @@ public class HomeController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> LoginAsync(LoginFormModel model)
     {
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                await _userLogic.LoginAsync(model);
-                return RedirectToAction("Index", "Site");
-            }
-            catch(InvalidCredentialsException)
-            {
-                model.Errors.Add(_localizer["Wrong email or password"]);
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unknown error when trying to login user");
-                model.Errors.Add(_localizer["Unknown error"]);
-                return View(model);
-            }
-        }
-        else
+        ViewBag.Kind = LoginKind.ByPassword;
+
+        if (!ModelState.IsValid)
         {
             model.LoadErrors(ModelState);
             return View(model);
         }
+
+        try
+        {
+            await _userLogic.LoginAsync(model);
+            return RedirectToAction("Index", "Site");
+        }
+        catch(InvalidCredentialsException)
+        {
+            model.Errors.Add(_localizer["Wrong email or password"]);
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unknown error when trying to login user");
+            model.Errors.Add(_localizer["Unknown error"]);
+            return View(model);
+        }
+    }
+
+    [HttpGet("loginlink/{arg}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LoginLinkAsync([FromRoute] string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+        {
+            return RedirectToAction("Login");
+        }
+
+        try
+        {
+            var decoded = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(arg));
+            var ml = MagicLinkStruct.FromString(decoded);
+            
+            if (
+                ml == null
+                || Validators.IsValidEmail(ml.Email)
+                || IsMagicLinkExpired(ml.Timestamp)
+               )
+            {
+                RedirectToAction("Login");
+            }
+
+            await _userLogic.LoginByMagicLinkAsync(ml!);
+
+            return RedirectToAction("Index", "Site");
+        }
+        catch (InvalidCredentialsException) { }
+        catch (Exception exc)
+        {
+            _logger.LogWarning(exc, "Err when user tries to log in by magic link");
+        }
+
+        return RedirectToAction("Login");
+    }
+
+    private bool IsMagicLinkExpired(long input)
+    {
+        try
+        {
+            return DateTime.FromFileTimeUtc(input) > DateTime.UtcNow;
+        }
+        catch { }
+
+        return true;
+    }
+
+    [HttpGet("loginmagiclink")]
+    [AllowAnonymous]
+    public IActionResult LoginMagicLink()
+    {
+        return View("Login");
+    }
+
+    [HttpPost("loginmagiclink")]
+    [ValidateAntiForgeryToken]
+    [AllowAnonymous]
+    public async Task<IActionResult> LoginMagicLinkAsync(LoginFormMagicLinkModel model)
+    {
+        ViewBag.Kind = LoginKind.ByMagicLink;
+
+        if(!ModelState.IsValid)
+        {
+            model.LoadErrors(ModelState);
+            return View(model);
+        }
+
+        try
+        {
+            await _userLogic.SendMagicLinkAsync(model.Email);
+            return View("LoginMagicLinkSent", model.Email);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unknown error when trying to login user by magic link");
+            model.Errors.Add(_localizer["Unknown error"]);
+            return View(model);
+        }
+    }
+
+    [HttpGet("loginmagiclinksent")]
+    [AllowAnonymous]
+    public IActionResult LoginMagicLinkSent()
+    {
+        return View((object)"");
     }
 
     [HttpGet("logout")]
@@ -231,6 +324,10 @@ public class HomeController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UsersManagementAsync(OrganizationUserFormModel model)
     {
+        var orgId = User.GetOrganizationId();
+        var canAddMoreUsers = await _subscriptionPlanGuard.CanAddMoreUsersAsync(orgId);
+        ViewBag.CanAddMoreUsers = canAddMoreUsers;
+
         if (!ModelState.IsValid)
         {
             await this.PutOrganizationUsersToViewDataAsync();
@@ -240,8 +337,6 @@ public class HomeController : Controller
 
         try
         {
-            var orgId = User.GetOrganizationId();
-            var canAddMoreUsers = await _subscriptionPlanGuard.CanAddMoreUsersAsync(orgId);
             if (!canAddMoreUsers)
             {
                 _logger.LogWarning("For {organizationId} there was a try to add new user but subscription plan limit was reached.", orgId);
@@ -261,7 +356,7 @@ public class HomeController : Controller
         {
             await this.PutOrganizationUsersToViewDataAsync();
             ModelState.AddModelError(exc.Property, exc.Message);
-            model.Errors.Add(_localizer["Validation error"]);
+            model.Errors.Add(_localizer["Validation error, check email or password"]);
             return View(model);
         }
         catch (Exception ex)

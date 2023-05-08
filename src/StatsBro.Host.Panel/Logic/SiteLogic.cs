@@ -339,9 +339,9 @@ public class SiteLogic
             result.Append(ev.UserAgent?.Device?.Name);
             result.Append(';');
             result.Append(ev.UserAgent?.Device?.Version);
-            result.Append(';');
+            //result.Append(';');
             //result.Append(ev.TimeSpentMillis);
-            //result.Append("\r\n");
+            result.Append("\r\n");
         }
 
         return result.ToString();

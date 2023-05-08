@@ -29,6 +29,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Database\SQL\008_MagicLink.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\SQL\007_Referrals.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Database\SQL\006_Payments.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

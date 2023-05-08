@@ -44,7 +44,7 @@ namespace StatsBro.Domain.Models
                     SubscriptionType = SubscriptionType.Personal,
                     PriceNett = 29.00m,
                     Currency = "PLN",
-                    EventsLimit = 1000,
+                    EventsLimit = 10000,
                     WebsitesLimit = 1,
                     UsersLimit = 1,
                     HasApi = false,

@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "_PublicLayout";
+}
+
+<section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+                <div class="d-flex justify-content-center py-4">
+                    <a asp-controller="Home" asp-action="Login" class="logo d-flex align-items-center w-auto">
+                        <img src="assets/img/logo.png" alt="">
+                    </a>
+                </div><!-- End Logo -->
+
+                <div class="card text-center mb-3">
+
+                    <div class="card-body">
+
+                        <div class="pt-4 pb-2">
+                            <h5 class="card-title text-center pb-0 fs-4">Sprawdź skrzynke mailową</h5>
+                        </div>
+                       
+                        <div class="card-body">
+                            <p class="card-text">Wysłaliśmy magicznego linka na adres <strong>@Model</strong></p>
+                            <p class="card-text">Proszę kliknij w link aby potwierdzić addres i zalogować się.</p>
+                        </div>
+                        
+                        <div class="col-12">
+                            <p class="small mb-0">Powrót do <a href="https://statsbro.io">statsbro.io</a></p>
+                        </div>
+
+                        <div class="card-footer">
+                            <p class="small mb-0">Nie widzisz maila? Proszę sprawdź spam.</p>
+                            <p class="small mb-0">Niepoprawny email? <a asp-controller="Home" asp-action="Login">Proszę spróbuj ponownie.</a></p>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</section>

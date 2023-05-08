@@ -14,15 +14,31 @@
  */
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StatsBro.Host.Panel.Models.Forms
-{
-    public class LoginFormModel : FormModel
-    {
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj adres email")]
-        [DataType(DataType.EmailAddress, ErrorMessage = "Twój adres email ma nieprawidłowy format")]
-        public string Email { get; set; } = null!;
+namespace StatsBro.Host.Panel.Models.Forms;
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj hasło")]
-        public string Password { get; set; } = null!;
-    }
+public class LoginFormModel : FormModel
+{
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj adres email")]
+    [DataType(DataType.EmailAddress, ErrorMessage = "Twój adres email ma nieprawidłowy format")]
+    public string Email { get; set; } = null!;
+
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj hasło")]
+    public string Password { get; set; } = null!;
+}
+
+public class LoginFormMagicLinkModel : FormModel
+{
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Podaj adres email")]
+    [DataType(DataType.EmailAddress, ErrorMessage = "Twój adres email ma nieprawidłowy format")]
+    public string Email { get; set; } = null!;
+
+    public long Timestamp { get; set; }
+}
+
+
+
+public enum LoginKind
+{
+    ByMagicLink = 0,
+    ByPassword = 1,
 }

@@ -20,7 +20,7 @@ namespace StatsBro.Host.Panel.Services;
 
 public interface IMessagingService
 {
-    void NewUserRegistrationAsync(User user);
+    void NewUserRegistrationAsync(User user, Guid? referralId);
 }
 public class MessagingService : IMessagingService
 {
@@ -39,15 +39,15 @@ public class MessagingService : IMessagingService
         this._logger = logger;
     }
 
-    public void NewUserRegistrationAsync(User user)
+    public void NewUserRegistrationAsync(User user, Guid? referralId)
     {
         // TODO add loging around this, like welcome email, activation email
         // slack notification that we have a new registration
         
-        this.MessageSupportAboutNewUserRegistration(user);
+        this.MessageSupportAboutNewUserRegistration(user, referralId);
     }
 
-    private void MessageSupportAboutNewUserRegistration(User user)
+    private void MessageSupportAboutNewUserRegistration(User user, Guid? referralId)
     {
         if(_configSlack == null || string.IsNullOrWhiteSpace(_configSlack.NewUserRegistrationUrl))
         {
@@ -55,7 +55,12 @@ public class MessagingService : IMessagingService
         }
 
         ThreadPool.QueueUserWorkItem(async _ => {
-            var text = $":tada: Nowa rejestracja {user.Email} :tada: ";
+            var text = $":tada: Nowa rejestracja {user.Email} :tada:";
+            if (referralId != null)
+            {
+                text += $"\n :carrot: Użytkownik z polecenia, referallID: {referralId} :briefcase:";
+            }
+
             await this.SlackPushAsync(_configSlack.NewUserRegistrationUrl, text);
         });
     }

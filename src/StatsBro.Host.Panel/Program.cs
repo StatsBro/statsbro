@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using StatsBro.Domain.Service.PayU;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.HttpOverrides;
+using StatsBro.Domain.Service.Sendgrid;
 
 System.IO.Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
 
@@ -57,7 +58,8 @@ builder.Services.Configure<ESConfig>(builder.Configuration.GetSection(nameof(ESC
 builder.Services.Configure<RabbitMQConfig>(builder.Configuration.GetSection(nameof(RabbitMQConfig)));
 builder.Services.Configure<SlackConfig>(builder.Configuration.GetSection(nameof(SlackConfig)));
 builder.Services.Configure<PayuConfig>(builder.Configuration.GetSection(nameof(PayuConfig)));
-builder.Services.Configure<PayuConfig>(builder.Configuration.GetSection(nameof(PayuConfig)));
+builder.Services.Configure<SendgridConfig>(builder.Configuration.GetSection(nameof(SendgridConfig)));
+
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -111,6 +113,8 @@ builder.Services.AddHttpClient(PayuService.HttpClientName, c =>
     AllowAutoRedirect = false,
 });
 
+builder.Services.AddTransient<SendgridService>();
+
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<UserLogic>();
@@ -118,6 +122,7 @@ builder.Services.AddScoped<SiteLogic>();
 builder.Services.AddScoped<StatsLogic>();
 builder.Services.AddScoped<OrganizationLogic>();
 builder.Services.AddScoped<PaymentLogic>();
+builder.Services.AddScoped<ReferralLogic>();
 builder.Services.AddScoped<ISubscriptionPlanGuard, SubscriptionPlanGuard>();
 
 builder.Services.AddTransient<IDbRepository, DbRepository>();

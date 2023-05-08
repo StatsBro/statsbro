@@ -20,8 +20,10 @@ using StatsBro.Domain.Helpers;
 using StatsBro.Domain.Models;
 using StatsBro.Domain.Models.DTO;
 using StatsBro.Domain.Models.Exceptions;
+using StatsBro.Domain.Service.Sendgrid;
 using StatsBro.Host.Panel.Models.Forms;
 using StatsBro.Host.Panel.Models.Forms.Settings;
+using StatsBro.Host.Panel.Models.Objects;
 using StatsBro.Host.Panel.Services;
 using StatsBro.Storage.Database;
 using System.Data;
@@ -35,7 +37,9 @@ public class UserLogic
     private readonly IDbRepository _repository;
     private readonly IMessagingService _messagingService;
     private readonly SiteLogic _siteLogic;
+    private readonly ReferralLogic _referralLogic;
     private readonly INotificationService _notification;
+    private readonly SendgridService _sendgridService; // TODO: create interface on it and abstract it
     private readonly ILogger<UserLogic> _logger;
 
     public UserLogic(
@@ -44,6 +48,8 @@ public class UserLogic
         IMessagingService messagingService,
         INotificationService notification,
         SiteLogic siteLogic,
+        ReferralLogic referralLogic,
+        SendgridService sendgridService,
         ILogger<UserLogic> logger)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -51,6 +57,8 @@ public class UserLogic
         _messagingService = messagingService;
         _notification = notification;
         _siteLogic = siteLogic;
+        _referralLogic = referralLogic;
+        _sendgridService = sendgridService;
         _logger = logger;
     }
 
@@ -128,7 +136,8 @@ public class UserLogic
 
             user = await _repository.GetUserAsync(userId);
             await CreateSessionAsync(user!.Id, user.Email, organizationId, role);
-            _messagingService.NewUserRegistrationAsync(user!);
+            var referralId = await _referralLogic.MakeReferralAsync(_httpContextAccessor.HttpContext?.Request, organizationId);
+            _messagingService.NewUserRegistrationAsync(user!, referralId);
 
             return site.Id;
         }
@@ -137,6 +146,45 @@ public class UserLogic
             await _repository.RollbackTransactionAsync(transaction);
             throw;
         }
+    }
+
+    // TODO: parametrize hosting URL
+    public async Task SendMagicLinkAsync(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return;
+        }
+
+        var user = await _repository.GetUserAsync(email);
+        if (user == null)
+        {
+            return;
+        }
+
+        var magicLink = new MagicLinkDTO 
+        {
+            Id = Guid.NewGuid(),
+            Origin = MagicLinkOrigin.Login, 
+            ValidTo = DateTime.UtcNow.AddDays(1),
+            UserId = user.Id,
+        };
+
+        var ml = new MagicLinkStruct 
+        {
+            Email = email, 
+            Id = magicLink.Id,
+            Timestamp = magicLink.ValidTo.ToFileTimeUtc() 
+        };
+
+        await _repository.AddMagicLinkAsync(magicLink);
+        var mlEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(ml.ToString()));
+        var magicLinkUrl = $"https://app.statsbro.io/loginlink/{mlEncoded}";
+
+        await _sendgridService.SendLoginByMagicLinkAsync(
+            email, 
+            new EmailPayloadMagicLink { Link = magicLinkUrl }
+            );
     }
 
     public async Task<Guid> AddOrganizationUser(OrganizationUserFormModel model)
@@ -213,6 +261,25 @@ public class UserLogic
         {
             throw new InvalidCredentialsException();
         }
+    }
+
+    public async Task LoginByMagicLinkAsync(MagicLinkStruct ml)
+    {
+        var magicLink = await _repository.GetMagicLinkAsync(ml.Id);
+        if (magicLink == null || magicLink.ValidTo < DateTime.UtcNow)
+        {
+            throw new InvalidCredentialsException();
+        }
+
+        var user = await _repository.GetUserAsync(ml.Email);
+        if (user == null || magicLink.UserId != user.Id)
+        {
+            throw new InvalidCredentialsException();
+        }
+
+        var orgUser = await _repository.GetOrganizationForUserIdAsync(user.Id);
+        await CreateSessionAsync(user.Id, user.Email, orgUser.Organization.Id, orgUser.Role);
+        await _repository.UserLoggedInAsync(user.Id);
     }
 
     public async Task<OrganizationUserDetailsDTO> GetOrganizationForUserAsync(Guid userId)
